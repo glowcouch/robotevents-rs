@@ -1,4 +1,8 @@
-use crate::filters::{EventTeamsFilter, EventSkillsFilter, EventAwardsFilter, DivisionMatchesFilter, DivisionRankingsFilter, TeamEventsFilter, TeamMatchesFilter, TeamRankingsFilter, TeamSkillsFilter, TeamAwardsFilter, SeasonEventsFilter};
+use crate::filters::{
+    DivisionMatchesFilter, DivisionRankingsFilter, EventAwardsFilter, EventSkillsFilter,
+    EventTeamsFilter, SeasonEventsFilter, TeamAwardsFilter, TeamEventsFilter, TeamMatchesFilter,
+    TeamRankingsFilter, TeamSkillsFilter,
+};
 
 use super::{
     filters::{EventsFilter, SeasonsFilter, TeamsFilter},
@@ -18,7 +22,7 @@ pub const V2_API_BASE: &str = "https://www.robotevents.com/api/v2";
 
 impl RobotEvents {
     /// Create a new RobotEvents API client.
-    /// 
+    ///
     /// A bearer authentication token is required for requests to be made. This can
     /// be obtained from RobotEvents by creating an account and requesting one.
     pub fn new(bearer_token: impl AsRef<str>) -> Self {
@@ -84,7 +88,11 @@ impl RobotEvents {
     }
 
     /// Gets a List of Events that a given Team has attended.
-    pub async fn team_events(&self, team_id: i32, filter: TeamEventsFilter) -> Result<PaginatedResponse<Event>, reqwest::Error> {
+    pub async fn team_events(
+        &self,
+        team_id: i32,
+        filter: TeamEventsFilter,
+    ) -> Result<PaginatedResponse<Event>, reqwest::Error> {
         Ok(self
             .request(format!("/teams/{team_id}/events{filter}"))
             .await?
@@ -93,7 +101,11 @@ impl RobotEvents {
     }
 
     /// Gets a List of Matches that a given Team has played in.
-    pub async fn team_matches(&self, team_id: i32, filter: TeamMatchesFilter) -> Result<PaginatedResponse<Match>, reqwest::Error> {
+    pub async fn team_matches(
+        &self,
+        team_id: i32,
+        filter: TeamMatchesFilter,
+    ) -> Result<PaginatedResponse<Match>, reqwest::Error> {
         Ok(self
             .request(format!("/teams/{team_id}/matches{filter}"))
             .await?
@@ -102,7 +114,11 @@ impl RobotEvents {
     }
 
     /// Gets a List of Matches that a given Team has played in.
-    pub async fn team_rankings(&self, team_id: i32, filter: TeamRankingsFilter) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
+    pub async fn team_rankings(
+        &self,
+        team_id: i32,
+        filter: TeamRankingsFilter,
+    ) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
         Ok(self
             .request(format!("/teams/{team_id}/rankings{filter}"))
             .await?
@@ -111,7 +127,11 @@ impl RobotEvents {
     }
 
     /// Gets a List of Skills runs that a given Team has performed.
-    pub async fn team_skills(&self, team_id: i32, filter: TeamSkillsFilter) -> Result<PaginatedResponse<Skill>, reqwest::Error> {
+    pub async fn team_skills(
+        &self,
+        team_id: i32,
+        filter: TeamSkillsFilter,
+    ) -> Result<PaginatedResponse<Skill>, reqwest::Error> {
         Ok(self
             .request(format!("/teams/{team_id}/skills{filter}"))
             .await?
@@ -120,7 +140,11 @@ impl RobotEvents {
     }
 
     /// Gets a List of Awards that a given Team has received.
-    pub async fn team_awards(&self, team_id: i32, filter: TeamAwardsFilter) -> Result<PaginatedResponse<Award>, reqwest::Error> {
+    pub async fn team_awards(
+        &self,
+        team_id: i32,
+        filter: TeamAwardsFilter,
+    ) -> Result<PaginatedResponse<Award>, reqwest::Error> {
         Ok(self
             .request(format!("/teams/{team_id}/awards{filter}"))
             .await?
@@ -152,7 +176,11 @@ impl RobotEvents {
     }
 
     /// Gets a List of Events for a given Season.
-    pub async fn season_events(&self, season_id: i32, filter: SeasonEventsFilter) -> Result<PaginatedResponse<Season>, reqwest::Error> {
+    pub async fn season_events(
+        &self,
+        season_id: i32,
+        filter: SeasonEventsFilter,
+    ) -> Result<PaginatedResponse<Season>, reqwest::Error> {
         Ok(self
             .request(format!("/seasons/{season_id}/events{filter}"))
             .await?
@@ -197,7 +225,11 @@ impl RobotEvents {
     }
 
     /// Get a paginated list of teams attending an event.
-    pub async fn event_teams(&self, event_id: i32, filter: EventTeamsFilter) -> Result<PaginatedResponse<Team>, reqwest::Error> {
+    pub async fn event_teams(
+        &self,
+        event_id: i32,
+        filter: EventTeamsFilter,
+    ) -> Result<PaginatedResponse<Team>, reqwest::Error> {
         Ok(self
             .request(format!("/events/{event_id}/teams{filter}"))
             .await?
@@ -206,7 +238,11 @@ impl RobotEvents {
     }
 
     /// Get a paginated list of skills runs at an event.
-    pub async fn event_skills(&self, event_id: i32, filter: EventSkillsFilter) -> Result<PaginatedResponse<Skill>, reqwest::Error> {
+    pub async fn event_skills(
+        &self,
+        event_id: i32,
+        filter: EventSkillsFilter,
+    ) -> Result<PaginatedResponse<Skill>, reqwest::Error> {
         Ok(self
             .request(format!("/events/{event_id}/skills{filter}"))
             .await?
@@ -215,7 +251,11 @@ impl RobotEvents {
     }
 
     /// Get a paginated list of skills runs at an event.
-    pub async fn event_awards(&self, event_id: i32, filter: EventAwardsFilter) -> Result<PaginatedResponse<Award>, reqwest::Error> {
+    pub async fn event_awards(
+        &self,
+        event_id: i32,
+        filter: EventAwardsFilter,
+    ) -> Result<PaginatedResponse<Award>, reqwest::Error> {
         Ok(self
             .request(format!("/events/{event_id}/awards{filter}"))
             .await?
@@ -224,27 +264,48 @@ impl RobotEvents {
     }
 
     /// Gets a List of Matches for a single Division of an Event.
-    pub async fn event_division_matches(&self, event_id: i32, division_id: i32, filter: DivisionMatchesFilter) -> Result<PaginatedResponse<Match>, reqwest::Error> {
+    pub async fn event_division_matches(
+        &self,
+        event_id: i32,
+        division_id: i32,
+        filter: DivisionMatchesFilter,
+    ) -> Result<PaginatedResponse<Match>, reqwest::Error> {
         Ok(self
-            .request(format!("/events/{event_id}/divisions/{division_id}/matches{filter}"))
+            .request(format!(
+                "/events/{event_id}/divisions/{division_id}/matches{filter}"
+            ))
             .await?
             .json()
             .await?)
     }
 
     /// Gets a List of Finalist Rankings for a single Division of an Event.
-    pub async fn event_division_finalist_rankings(&self, event_id: i32, division_id: i32, filter: DivisionRankingsFilter) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
+    pub async fn event_division_finalist_rankings(
+        &self,
+        event_id: i32,
+        division_id: i32,
+        filter: DivisionRankingsFilter,
+    ) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
         Ok(self
-            .request(format!("/events/{event_id}/divisions/{division_id}/finalistRankings{filter}"))
+            .request(format!(
+                "/events/{event_id}/divisions/{division_id}/finalistRankings{filter}"
+            ))
             .await?
             .json()
             .await?)
     }
 
     /// Gets a List of Rankings for a single Division of an Event.
-    pub async fn event_division_rankings(&self, event_id: i32, division_id: i32, filter: DivisionRankingsFilter) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
+    pub async fn event_division_rankings(
+        &self,
+        event_id: i32,
+        division_id: i32,
+        filter: DivisionRankingsFilter,
+    ) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
         Ok(self
-            .request(format!("/events/{event_id}/divisions/{division_id}/finalist{filter}"))
+            .request(format!(
+                "/events/{event_id}/divisions/{division_id}/finalist{filter}"
+            ))
             .await?
             .json()
             .await?)
