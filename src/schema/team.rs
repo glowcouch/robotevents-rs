@@ -3,9 +3,34 @@ use crate::{
     filters::{
         TeamAwardsFilter, TeamEventsFilter, TeamMatchesFilter, TeamRankingsFilter, TeamSkillsFilter,
     },
-    schema::{Award, Event, Grade, IdInfo, Location, Match, PaginatedResponse, Ranking, Skill},
+    schema::{Award, Event, IdInfo, Location, Match, PaginatedResponse, Ranking, Skill},
 };
 use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum Grade {
+    College,
+
+    #[serde(rename = "High School")]
+    HighSchool,
+
+    #[serde(rename = "Middle School")]
+    MiddleSchool,
+
+    #[serde(rename = "Elementary School")]
+    ElementarySchool,
+}
+
+impl std::fmt::Display for Grade {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::College => "College",
+            Self::HighSchool => "High School",
+            Self::MiddleSchool => "Middle School",
+            Self::ElementarySchool => "Elementary School",
+        })
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Team {

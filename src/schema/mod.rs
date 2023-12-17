@@ -6,6 +6,7 @@ pub mod ranking;
 pub mod season;
 pub mod skill;
 pub mod team;
+pub mod program;
 
 pub use award::*;
 pub use event::*;
@@ -15,6 +16,7 @@ pub use ranking::*;
 pub use season::*;
 pub use skill::*;
 pub use team::*;
+pub use program::*;
 
 use crate::{RobotEvents, V2_API_BASE};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
@@ -108,31 +110,5 @@ impl<T: DeserializeOwned> PaginatedResponse<T> {
 pub struct IdInfo {
     pub id: i32,
     pub name: String,
-    #[serde(alias = "abbr")]
     pub code: Option<String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum Grade {
-    College,
-
-    #[serde(rename = "High School")]
-    HighSchool,
-
-    #[serde(rename = "Middle School")]
-    MiddleSchool,
-
-    #[serde(rename = "Elementary School")]
-    ElementarySchool,
-}
-
-impl std::fmt::Display for Grade {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(match self {
-            Self::College => "College",
-            Self::HighSchool => "High School",
-            Self::MiddleSchool => "Middle School",
-            Self::ElementarySchool => "Elementary School",
-        })
-    }
 }
