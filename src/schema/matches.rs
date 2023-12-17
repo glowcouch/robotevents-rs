@@ -37,7 +37,7 @@ pub struct AllianceTeam {
     pub sitting: bool,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum MatchRound {
     Practice = 1,
     Qualification = 2,
@@ -45,4 +45,17 @@ pub enum MatchRound {
     Semifinals = 4,
     Finals = 5,
     RoundOf16 = 6,
+}
+
+impl std::fmt::Display for MatchRound {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(match self {
+			Self::Practice => "Practice",
+			Self::Qualification => "Qualification",
+			Self::Quarterfinals => "Quarterfinals",
+			Self::Semifinals => "Semifinals",
+			Self::Finals => "Finals",
+			Self::RoundOf16 => "Round of 16",
+        })
+    }
 }

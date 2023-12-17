@@ -227,3 +227,36 @@ impl DivisionMatchesFilter {
         self
     }
 }
+
+
+/// Filters for the RobotEvents `/event/:id/divisions/:div/finalistRankings` and `/event/:id/divisions/:div/rankings` endpoints.
+#[derive(Default, Debug, Clone, PartialEq)]
+pub struct DivisionRankingsFilter {
+    query: HashMap<&'static str, String>,
+}
+
+impl_filter_display!(DivisionRankingsFilter);
+
+impl DivisionRankingsFilter {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn team(mut self, team: i32) -> Self {
+        self.query.insert("team%5B%5D", team.to_string());
+        self
+    }
+    pub fn teams(mut self, teams: &[i32]) -> Self {
+        self.query.insert("team%5B%5D", join(teams, ","));
+        self
+    }
+
+    pub fn rank(mut self, rank: i32) -> Self {
+        self.query.insert("rank%5B%5D", rank.to_string());
+        self
+    }
+    pub fn ranks(mut self, ranks: &[i32]) -> Self {
+        self.query.insert("rank%5B%5D", join(ranks, ","));
+        self
+    }
+}
