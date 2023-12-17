@@ -21,10 +21,21 @@ pub const V1_API_BASE: &str = "https://www.robotevents.com/api/v1";
 pub const V2_API_BASE: &str = "https://www.robotevents.com/api/v2";
 
 impl RobotEvents {
-    /// Create a new RobotEvents API client.
+    /// Creates a new RobotEvents API client.
     ///
     /// A bearer authentication token is required for requests to be made. This can
     /// be obtained from RobotEvents by creating an account and requesting one.
+    /// 
+    /// # Examples
+    /// 
+    /// Creating a client with a token stored as an enviornment variable:
+    /// 
+    /// ```
+    /// use robotevents::RobotEvents;
+    /// 
+    /// let token = std::env::var("ROBOTEVENTS_TOKEN")?;
+    /// let client = RobotEvents::new(token);
+    /// ```
     pub fn new(bearer_token: impl AsRef<str>) -> Self {
         Self {
             bearer_token: bearer_token.as_ref().to_owned(),
@@ -64,9 +75,13 @@ impl RobotEvents {
             .await?)
     }
 
+    /////////////////////////////////////////////////////////////////////////
+    // Team-related endpoint methods
+    /////////////////////////////////////////////////////////////////////////
+
     /// Get a paginated list of [`Team`]s from RobotEvents.
     ///
-    /// Team listings can be filtered using a [`TeamFilter`] search.
+    /// Team listings can be filtered using a [`TeamsFilter`] search.
     pub async fn teams(
         &self,
         filter: TeamsFilter,
@@ -87,7 +102,7 @@ impl RobotEvents {
             .await?)
     }
 
-    /// Gets a List of Events that a given Team has attended.
+    /// Gets a List of [`Event`]s that a given Team ID has attended.
     pub async fn team_events(
         &self,
         team_id: i32,
@@ -100,7 +115,7 @@ impl RobotEvents {
             .await?)
     }
 
-    /// Gets a List of Matches that a given Team has played in.
+    /// Gets a List of [`Match`]es that a given Team ID has played in.
     pub async fn team_matches(
         &self,
         team_id: i32,
@@ -113,7 +128,7 @@ impl RobotEvents {
             .await?)
     }
 
-    /// Gets a List of Matches that a given Team has played in.
+    /// Gets a List of [`Ranking`]s that a given Team ID has played in.
     pub async fn team_rankings(
         &self,
         team_id: i32,
@@ -126,7 +141,7 @@ impl RobotEvents {
             .await?)
     }
 
-    /// Gets a List of Skills runs that a given Team has performed.
+    /// Gets a List of [`Skill`]s runs that a given Team ID has performed.
     pub async fn team_skills(
         &self,
         team_id: i32,
@@ -139,7 +154,7 @@ impl RobotEvents {
             .await?)
     }
 
-    /// Gets a List of Awards that a given Team has received.
+    /// Gets a List of [`Award`]s that a given Team ID has received.
     pub async fn team_awards(
         &self,
         team_id: i32,
@@ -151,6 +166,11 @@ impl RobotEvents {
             .json()
             .await?)
     }
+
+    
+    /////////////////////////////////////////////////////////////////////////
+    // Season-related endpoint methods
+    /////////////////////////////////////////////////////////////////////////
 
     /// Get a paginated list of [`Season`]s from RobotEvents.
     ///
@@ -188,6 +208,11 @@ impl RobotEvents {
             .await?)
     }
 
+    
+    /////////////////////////////////////////////////////////////////////////
+    // Program-related endpoint methods
+    /////////////////////////////////////////////////////////////////////////
+
     /// Get a paginated list of all programs from RobotEvents.
     pub async fn programs(&self) -> Result<PaginatedResponse<IdInfo>, reqwest::Error> {
         Ok(self.request("/programs").await?.json().await?)
@@ -200,6 +225,11 @@ impl RobotEvents {
             .json()
             .await?)
     }
+
+    
+    /////////////////////////////////////////////////////////////////////////
+    // Event-related endpoint methods
+    /////////////////////////////////////////////////////////////////////////
 
     /// Get a paginated list of [`Event`]s from RobotEvents.
     ///
