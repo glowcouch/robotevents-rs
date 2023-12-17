@@ -17,6 +17,10 @@ pub const V1_API_BASE: &str = "https://www.robotevents.com/api/v1";
 pub const V2_API_BASE: &str = "https://www.robotevents.com/api/v2";
 
 impl RobotEvents {
+    /// Create a new RobotEvents API client.
+    /// 
+    /// A bearer authentication token is required for requests to be made. This can
+    /// be obtained from RobotEvents by creating an account and requesting one.
     pub fn new(bearer_token: impl AsRef<str>) -> Self {
         Self {
             bearer_token: bearer_token.as_ref().to_owned(),
@@ -24,10 +28,8 @@ impl RobotEvents {
         }
     }
 
-    /// Make a request to a [RobotEvents API v2](https://www.robotevents.com/api/v2) endpoint.
-    ///
-    /// Requires a bearer authentication token to be provided for requests to work. This can
-    /// be obtained from RobotEvents by creating an account and requesting one.
+    /// Make a request to a [RobotEvents API v2](https://www.robotevents.com/api/v2) endpoint using the
+    /// client's bearer token.
     pub async fn request(
         &self,
         endpoint: impl AsRef<str>,
