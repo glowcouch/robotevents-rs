@@ -50,7 +50,7 @@ impl<T: DeserializeOwned> PaginatedResponse<T> {
                 .request(url.trim_start_matches(V2_API_BASE))
                 .await
             {
-                Ok(response) => match response.json::<PaginatedResponse<T>>().await {
+                Ok(response) => match response.json().await {
                     Ok(json) => Some(Ok(json)),
                     Err(error) => Some(Err(error)),
                 },
@@ -70,7 +70,7 @@ impl<T: DeserializeOwned> PaginatedResponse<T> {
                 .request(url.trim_start_matches(V2_API_BASE))
                 .await
             {
-                Ok(response) => match response.json::<PaginatedResponse<T>>().await {
+                Ok(response) => match response.json().await {
                     Ok(json) => Some(Ok(json)),
                     Err(error) => Some(Err(error)),
                 },
@@ -88,7 +88,7 @@ impl<T: DeserializeOwned> PaginatedResponse<T> {
         robotevents
             .request(self.meta.first_page_url.trim_start_matches(V2_API_BASE))
             .await?
-            .json::<PaginatedResponse<T>>()
+            .json()
             .await
     }
 
@@ -99,7 +99,7 @@ impl<T: DeserializeOwned> PaginatedResponse<T> {
         robotevents
             .request(self.meta.last_page_url.trim_start_matches(V2_API_BASE))
             .await?
-            .json::<PaginatedResponse<T>>()
+            .json()
             .await
     }
 }
@@ -136,9 +136,3 @@ impl std::fmt::Display for Grade {
         })
     }
 }
-
-// #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-// pub struct Error {
-//     pub code: i32,
-//     pub message: String,
-// }

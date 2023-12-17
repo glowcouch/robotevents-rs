@@ -26,54 +26,34 @@ impl Team {
         client: &RobotEvents,
         filter: TeamEventsFilter,
     ) -> Result<PaginatedResponse<Event>, reqwest::Error> {
-        Ok(client
-            .request(format!("/teams/{}/events{filter}", self.id))
-            .await?
-            .json()
-            .await?)
+        client.team_events(self.id, filter).await
     }
     pub async fn matches(
         &self,
         client: &RobotEvents,
         filter: TeamMatchesFilter,
     ) -> Result<PaginatedResponse<Match>, reqwest::Error> {
-        Ok(client
-            .request(format!("/teams/{}/matches{filter}", self.id))
-            .await?
-            .json()
-            .await?)
+        client.team_matches(self.id, filter).await
     }
     pub async fn rankings(
         &self,
         client: &RobotEvents,
         filter: TeamRankingsFilter,
     ) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
-        Ok(client
-            .request(format!("/teams/{}/rankings{filter}", self.id))
-            .await?
-            .json()
-            .await?)
+        client.team_rankings(self.id, filter).await
     }
     pub async fn skills(
         &self,
         client: &RobotEvents,
         filter: TeamSkillsFilter,
     ) -> Result<PaginatedResponse<Skill>, reqwest::Error> {
-        Ok(client
-            .request(format!("/teams/{}/skills{filter}", self.id))
-            .await?
-            .json()
-            .await?)
+        client.team_skills(self.id, filter).await
     }
     pub async fn awards(
         &self,
         client: &RobotEvents,
         filter: TeamAwardsFilter,
     ) -> Result<PaginatedResponse<Award>, reqwest::Error> {
-        Ok(client
-            .request(format!("/teams/{}/awards{filter}", self.id))
-            .await?
-            .json()
-            .await?)
+        client.team_awards(self.id, filter).await
     }
 }

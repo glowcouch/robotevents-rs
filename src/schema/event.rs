@@ -1,5 +1,12 @@
-use super::{IdInfo, Location, Season};
+use crate::{
+    RobotEvents,
+    filters::{EventTeamsFilter, EventSkillsFilter, EventAwardsFilter, DivisionMatchesFilter, DivisionRankingsFilter},
+    schema::{IdInfo, Location, Season}
+};
+
 use serde::{Deserialize, Serialize};
+
+use super::{PaginatedResponse, Team, Skill, Award, Match, Ranking};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Division {
@@ -67,4 +74,52 @@ pub struct Event {
     pub ongoing: bool,
     pub awards_finalized: bool,
     pub event_type: EventType,
+}
+
+impl Event {
+    pub async fn teams(
+        &self,
+        client: &RobotEvents,
+        filter: EventTeamsFilter,
+    ) -> Result<PaginatedResponse<Team>, reqwest::Error> {
+        client.event_teams(self.id, filter).await
+    }
+    pub async fn skills(
+        &self,
+        client: &RobotEvents,
+        filter: EventSkillsFilter,
+    ) -> Result<PaginatedResponse<Skill>, reqwest::Error> {
+        client.event_skills(self.id, filter).await
+    }
+    pub async fn awards(
+        &self,
+        client: &RobotEvents,
+        filter: EventAwardsFilter,
+    ) -> Result<PaginatedResponse<Award>, reqwest::Error> {
+        client.event_awards(self.id, filter).await
+    }
+    pub async fn division_matches(
+        &self,
+        division_id: i32,
+        client: &RobotEvents,
+        filter: DivisionMatchesFilter,
+    ) -> Result<PaginatedResponse<Match>, reqwest::Error> {
+        client.event_division_matches(self.id, division_id, filter).await
+    }
+    pub async fn division_finalist_rankings(
+        &self,
+        division_id: i32,
+        client: &RobotEvents,
+        filter: DivisionRankingsFilter,
+    ) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
+        client.event_division_finalist_rankings(self.id, division_id, filter).await
+    }
+    pub async fn division_rankings(
+        &self,
+        division_id: i32,
+        client: &RobotEvents,
+        filter: DivisionRankingsFilter,
+    ) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
+        client.event_division_rankings(self.id, division_id, filter).await
+    }
 }

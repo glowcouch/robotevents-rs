@@ -2,7 +2,7 @@ use super::impl_filter_display;
 use itertools::join;
 use std::collections::HashMap;
 
-use crate::schema::{EventLevel, EventType, Grade, MatchRound};
+use crate::schema::{EventLevel, EventType, Grade, MatchRound, SkillType};
 
 /// Filters for the RobotEvents `/events` endpoint.
 #[derive(Default, Debug, Clone, PartialEq)]
@@ -139,6 +139,38 @@ impl EventTeamsFilter {
 
     pub fn my_teams(mut self, my_teams: bool) -> Self {
         self.query.insert("myTeams", my_teams.to_string());
+        self
+    }
+}
+
+/// Filters for the RobotEvents `/events/:id/skills` endpoint.
+#[derive(Default, Debug, Clone, PartialEq)]
+pub struct EventSkillsFilter {
+    query: HashMap<&'static str, String>,
+}
+
+impl_filter_display!(EventSkillsFilter);
+
+impl EventSkillsFilter {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn team(mut self, team: i32) -> Self {
+        self.query.insert("team%5B%5D", team.to_string());
+        self
+    }
+    pub fn teams(mut self, teams: &[i32]) -> Self {
+        self.query.insert("team%5B%5D", join(teams, ","));
+        self
+    }
+
+    pub fn skill_type(mut self, skill_type: SkillType) -> Self {
+        self.query.insert("type%5B%5D", skill_type.to_string());
+        self
+    }
+    pub fn skill_types(mut self, skill_types: &[SkillType]) -> Self {
+        self.query.insert("type%5B%5D", join(skill_types, ","));
         self
     }
 }
