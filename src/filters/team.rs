@@ -1,8 +1,8 @@
-use std::collections::HashMap;
-use itertools::join;
 use super::impl_filter_display;
+use itertools::join;
+use std::collections::HashMap;
 
-use crate::schema::{Grade, EventLevel, MatchRound, SkillType};
+use crate::schema::{EventLevel, Grade, MatchRound, SkillType};
 
 /// Filters for the RobotEvents `/teams` endpoint.
 #[derive(Default, Debug, Clone, PartialEq)]
@@ -16,35 +16,35 @@ impl TeamsFilter {
     pub fn new() -> Self {
         Self::default()
     }
-    
+
     pub fn id(mut self, id: i32) -> Self {
         self.query.insert("id%5B%5D", id.to_string());
         self
     }
-	pub fn ids(mut self, ids: &[i32]) -> Self {
+    pub fn ids(mut self, ids: &[i32]) -> Self {
         self.query.insert("id%5B%5D", join(ids, ","));
         self
-	}
+    }
 
-	pub fn number(mut self, number: String) -> Self {
+    pub fn number(mut self, number: String) -> Self {
         self.query.insert("number%5B%5D", number.to_string());
         self
     }
-	pub fn numbers(mut self, numbers: Vec<String>) -> Self {
+    pub fn numbers(mut self, numbers: Vec<String>) -> Self {
         self.query.insert("number%5B%5D", join(numbers, ","));
         self
-	}
+    }
 
     pub fn event(mut self, event: i32) -> Self {
         self.query.insert("event%5B%5D", event.to_string());
         self
     }
-	pub fn events(mut self, events: &[i32]) -> Self {
+    pub fn events(mut self, events: &[i32]) -> Self {
         self.query.insert("event%5B%5D", join(events, ","));
         self
-	}
+    }
 
-	pub fn registered(mut self, number: String) -> Self {
+    pub fn registered(mut self, number: String) -> Self {
         self.query.insert("registered", number.to_string());
         self
     }
@@ -53,28 +53,28 @@ impl TeamsFilter {
         self.query.insert("program%5B%5D", program.to_string());
         self
     }
-	pub fn programs(mut self, programs: &[i32]) -> Self {
+    pub fn programs(mut self, programs: &[i32]) -> Self {
         self.query.insert("program%5B%5D", join(programs, ","));
         self
-	}
+    }
 
     pub fn grade(mut self, grade: Grade) -> Self {
         self.query.insert("grade%5B%5D", grade.to_string());
         self
     }
-	pub fn grades(mut self, grades: &[Grade]) -> Self {
+    pub fn grades(mut self, grades: &[Grade]) -> Self {
         self.query.insert("grade%5B%5D", join(grades, ","));
         self
-	}
+    }
 
     pub fn country(mut self, country: i32) -> Self {
         self.query.insert("country%5B%5D", country.to_string());
         self
     }
-	pub fn countries(mut self, countrys: &[i32]) -> Self {
+    pub fn countries(mut self, countrys: &[i32]) -> Self {
         self.query.insert("country%5B%5D", join(countrys, ","));
         self
-	}
+    }
 
     pub fn my_teams(mut self, my_teams: bool) -> Self {
         self.query.insert("myTeams", my_teams.to_string());
@@ -117,7 +117,7 @@ impl TeamEventsFilter {
         self.query.insert("start", start);
         self
     }
-	pub fn end(mut self, end: String) -> Self {
+    pub fn end(mut self, end: String) -> Self {
         self.query.insert("end", end);
         self
     }
@@ -144,15 +144,15 @@ impl TeamMatchesFilter {
     pub fn new() -> Self {
         Self::default()
     }
-    
+
     pub fn event(mut self, event: i32) -> Self {
         self.query.insert("event%5B%5D", event.to_string());
         self
     }
-	pub fn events(mut self, events: &[i32]) -> Self {
+    pub fn events(mut self, events: &[i32]) -> Self {
         self.query.insert("event%5B%5D", join(events, ","));
         self
-	}
+    }
 
     pub fn season(mut self, season: i32) -> Self {
         self.query.insert("season%5B%5D", season.to_string());
@@ -168,10 +168,13 @@ impl TeamMatchesFilter {
         self
     }
     pub fn rounds(mut self, rounds: &[MatchRound]) -> Self {
-        self.query.insert("round%5B%5D", join(rounds.iter().map(|round| round.clone() as i32), ","));
+        self.query.insert(
+            "round%5B%5D",
+            join(rounds.iter().map(|round| round.clone() as i32), ","),
+        );
         self
     }
-    
+
     pub fn instance(mut self, instance: i32) -> Self {
         self.query.insert("instance%5B%5D", instance.to_string());
         self
@@ -203,7 +206,7 @@ impl TeamRankingsFilter {
     pub fn new() -> Self {
         Self::default()
     }
-    
+
     pub fn event(mut self, event: i32) -> Self {
         self.query.insert("event%5B%5D", event.to_string());
         self
@@ -244,7 +247,7 @@ impl TeamSkillsFilter {
     pub fn new() -> Self {
         Self::default()
     }
-    
+
     pub fn event(mut self, event: i32) -> Self {
         self.query.insert("event%5B%5D", event.to_string());
         self
@@ -285,7 +288,7 @@ impl TeamAwardsFilter {
     pub fn new() -> Self {
         Self::default()
     }
-    
+
     pub fn event(mut self, event: i32) -> Self {
         self.query.insert("event%5B%5D", event.to_string());
         self

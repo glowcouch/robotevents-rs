@@ -1,5 +1,5 @@
-use serde::{Serialize, Deserialize};
 use super::IdInfo;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Skill {
@@ -20,7 +20,7 @@ pub struct Skill {
 pub enum SkillType {
     Driver,
     Programming,
-    PackageDeliveryTime
+    PackageDeliveryTime,
 }
 
 impl std::fmt::Display for SkillType {

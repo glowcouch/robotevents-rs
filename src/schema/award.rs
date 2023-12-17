@@ -1,5 +1,5 @@
-use serde::{Serialize, Deserialize};
 use super::IdInfo;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TeamAwardWinner {
@@ -13,7 +13,7 @@ pub enum AwardClassification {
     Champion,
     Finalist,
     Semifinalist,
-    Quarterfinalist
+    Quarterfinalist,
 }
 
 impl std::fmt::Display for AwardClassification {
@@ -22,7 +22,7 @@ impl std::fmt::Display for AwardClassification {
             Self::Champion => "Champion",
             Self::Finalist => "Finalist",
             Self::Semifinalist => "Semifinalist",
-            Self::Quarterfinalist => "Quarterfinalist"
+            Self::Quarterfinalist => "Quarterfinalist",
         })
     }
 }
@@ -31,7 +31,7 @@ impl std::fmt::Display for AwardClassification {
 #[serde(rename_all = "snake_case")]
 pub enum AwardDesignation {
     Tournament,
-    Division
+    Division,
 }
 
 impl std::fmt::Display for AwardDesignation {
@@ -41,7 +41,7 @@ impl std::fmt::Display for AwardDesignation {
             Self::Division => "Division",
         })
     }
-}   
+}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

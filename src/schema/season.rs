@@ -1,5 +1,5 @@
-use serde::{Serialize, Deserialize};
-use super::{RobotEvents, PaginatedResponse, Event, IdInfo};
+use super::{Event, IdInfo, PaginatedResponse, RobotEvents};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Season {
@@ -13,7 +13,14 @@ pub struct Season {
 }
 
 impl Season {
-    pub async fn events(&self, client: &RobotEvents) -> Result<PaginatedResponse<Event>, reqwest::Error> {
-        Ok(client.request(format!("/seasons/{}/events", self.id)).await?.json().await?)
+    pub async fn events(
+        &self,
+        client: &RobotEvents,
+    ) -> Result<PaginatedResponse<Event>, reqwest::Error> {
+        Ok(client
+            .request(format!("/seasons/{}/events", self.id))
+            .await?
+            .json()
+            .await?)
     }
 }

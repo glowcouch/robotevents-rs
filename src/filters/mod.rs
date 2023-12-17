@@ -7,7 +7,7 @@ pub use season::*;
 pub use team::*;
 
 /// Implements [`std::fmt::Display`] for a filter struct.
-/// 
+///
 /// This will convert the query parameters provided to the struct into a single query string.
 #[macro_export]
 macro_rules! impl_filter_display {

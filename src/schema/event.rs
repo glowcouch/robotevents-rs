@@ -1,5 +1,5 @@
-use serde::{Serialize, Deserialize};
-use super::{Season, IdInfo, Location};
+use super::{IdInfo, Location, Season};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Division {

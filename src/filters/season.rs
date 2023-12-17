@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use crate::{filters::impl_filter_display, schema::EventLevel};
 use itertools::join;
-use crate::{schema::EventLevel, filters::impl_filter_display};
+use std::collections::HashMap;
 
 /// Filters for the RobotEvents `/seasons` endpoint.
 #[derive(Default, Debug, Clone, PartialEq)]
@@ -19,28 +19,28 @@ impl SeasonsFilter {
         self.query.insert("id%5B%5D", id.to_string());
         self
     }
-	pub fn ids(mut self, ids: &[i32]) -> Self {
+    pub fn ids(mut self, ids: &[i32]) -> Self {
         self.query.insert("id%5B%5D", join(ids, ","));
         self
-	}
+    }
 
     pub fn program(mut self, program: i32) -> Self {
         self.query.insert("program%5B%5D", program.to_string());
         self
     }
-	pub fn programs(mut self, programs: &[i32]) -> Self {
+    pub fn programs(mut self, programs: &[i32]) -> Self {
         self.query.insert("program%5B%5D", join(programs, ","));
         self
-	}
-    
+    }
+
     pub fn team(mut self, team: i32) -> Self {
         self.query.insert("team%5B%5D", team.to_string());
         self
     }
-	pub fn teams(mut self, teams: &[i32]) -> Self {
+    pub fn teams(mut self, teams: &[i32]) -> Self {
         self.query.insert("team%5B%5D", join(teams, ","));
         self
-	}
+    }
 
     pub fn start(mut self, start: String) -> Self {
         self.query.insert("start", start);
@@ -92,7 +92,7 @@ impl SeasonEventsFilter {
         self.query.insert("start", start);
         self
     }
-	pub fn end(mut self, end: String) -> Self {
+    pub fn end(mut self, end: String) -> Self {
         self.query.insert("end", end);
         self
     }
