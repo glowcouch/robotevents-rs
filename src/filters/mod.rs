@@ -17,13 +17,13 @@ macro_rules! impl_filter_display {
                 let mut iter = self.query.iter();
 
                 if let Some(first) = iter.next() {
-                    write!(f, "?{}={}", first.0, first.1);
+                    write!(f, "?{}={}", first.0, first.1)?;
                 } else {
                     return Ok(());
                 }
 
                 for (key, value) in iter {
-                    write!(f, "&{key}={value}");
+                    write!(f, "&{key}={value}")?;
                 }
 
                 Ok(())
