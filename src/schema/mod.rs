@@ -16,7 +16,7 @@ pub use season::*;
 pub use matches::*;
 pub use ranking::*;
 
-use crate::api::robotevents::{RobotEvents, V2_API_BASE};
+use crate::{RobotEvents, V2_API_BASE};
 use serde::{Serialize, Deserialize, de::DeserializeOwned};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]

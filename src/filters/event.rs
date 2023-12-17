@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use itertools::join;
 use super::impl_filter_display;
 
-use crate::api::robotevents::schema::{Grade, MatchRound, EventLevel, EventType};
+use crate::schema::{Grade, MatchRound, EventLevel, EventType};
 
 /// Filters for the RobotEvents `/events` endpoint.
 #[derive(Default, Debug, Clone, PartialEq)]

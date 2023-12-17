@@ -10,6 +10,6 @@ categories = ["science::robotics", "api-bindings", "web-programming::http-client
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-serde = "1.0.193"
+serde = { version = "1.0.193", features = ["derive"] }
 reqwest = { version = "0.11.22", features = ["json"] }
 itertools = "0.12.0"

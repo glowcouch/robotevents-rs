@@ -1,4 +1,4 @@
-use crate::api::robotevents::{
+use crate::{
     client::RobotEvents,
     filters::{TeamEventsFilter, TeamRankingsFilter, TeamMatchesFilter, TeamAwardsFilter, TeamSkillsFilter},
     schema::{Award, Event, Grade, IdInfo, Location, Match, PaginatedResponse, Ranking, Skill}

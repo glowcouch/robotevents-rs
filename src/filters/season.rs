@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use itertools::join;
-use crate::api::robotevents::{schema::EventLevel, filters::impl_filter_display};
+use crate::{schema::EventLevel, filters::impl_filter_display};
 
 /// Filters for the RobotEvents `/seasons` endpoint.
 #[derive(Default, Debug, Clone, PartialEq)]
