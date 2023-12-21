@@ -75,7 +75,6 @@ pub struct Event {
     pub level: EventLevel,
     pub ongoing: bool,
     pub awards_finalized: bool,
-    #[serde(rename = "type")]
     pub event_type: EventType,
 }
 
