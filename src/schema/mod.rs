@@ -25,14 +25,14 @@ use serde::{de::DeserializeOwned, Deserialize, Serialize};
 pub struct PageMeta {
     pub current_page: i32,
     pub first_page_url: String,
-    pub from: i32,
+    pub from: Option<i32>,
+    pub to: Option<i32>,
     pub last_page: i32,
     pub last_page_url: String,
     pub prev_page_url: Option<String>,
     pub next_page_url: Option<String>,
     pub path: String,
     pub per_page: i32,
-    pub to: i32,
     pub total: i32,
 }
 
