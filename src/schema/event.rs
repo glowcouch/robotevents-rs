@@ -71,7 +71,7 @@ pub struct Event {
     pub program: IdInfo,
     pub location: Location,
     pub locations: HashMap<String, Location>,
-    pub division: Vec<Division>,
+    pub divisions: Vec<Division>,
     pub level: EventLevel,
     pub ongoing: bool,
     pub awards_finalized: bool,
