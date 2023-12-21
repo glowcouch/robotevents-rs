@@ -13,7 +13,7 @@ use super::{PaginatedResponse, Team, Skill, Award, Match, Ranking};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Division {
     id: i32,
-    name: Season,
+    name: String,
     order: i32,
 }
 
