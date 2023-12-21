@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{
     RobotEvents,
     filters::{EventTeamsFilter, EventSkillsFilter, EventAwardsFilter, DivisionMatchesFilter, DivisionRankingsFilter},
@@ -68,11 +70,12 @@ pub struct Event {
     pub season: IdInfo,
     pub program: IdInfo,
     pub location: Location,
-    pub locations: Vec<Location>,
+    pub locations: HashMap<String, Location>,
     pub division: Vec<Division>,
     pub level: EventLevel,
     pub ongoing: bool,
     pub awards_finalized: bool,
+    #[serde(rename = "type")]
     pub event_type: EventType,
 }
 

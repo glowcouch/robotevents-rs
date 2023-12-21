@@ -127,7 +127,7 @@ impl TeamEventsFilter {
         self
     }
     pub fn levels(mut self, levels: &[EventLevel]) -> Self {
-        self.query.insert("season%5B%5D", join(levels, ","));
+        self.query.insert("level%5B%5D", join(levels, ","));
         self
     }
 }
