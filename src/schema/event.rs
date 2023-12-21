@@ -75,7 +75,7 @@ pub struct Event {
     pub level: EventLevel,
     pub ongoing: bool,
     pub awards_finalized: bool,
-    pub event_type: EventType,
+    pub event_type: Option<EventType>,
 }
 
 impl Event {
