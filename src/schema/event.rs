@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::{
     RobotEvents,
     filters::{EventTeamsFilter, EventSkillsFilter, EventAwardsFilter, DivisionMatchesFilter, DivisionRankingsFilter},
-    schema::{IdInfo, Location, Season}
+    schema::{IdInfo, Location}
 };
 
 use serde::{Deserialize, Serialize};
