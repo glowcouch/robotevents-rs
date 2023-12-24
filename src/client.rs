@@ -17,7 +17,7 @@ pub struct RobotEvents {
     pub req_client: reqwest::Client,
 }
 
-pub const V1_API_BASE: &str = "https://www.robotevents.com/api/v1";
+pub const V1_API_BASE: &str = "https://www.robotevents.com/api";
 pub const V2_API_BASE: &str = "https://www.robotevents.com/api/v2";
 
 impl RobotEvents {

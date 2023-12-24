@@ -6,14 +6,14 @@ pub struct Location {
     pub address_1: String,
     pub address_2: Option<String>,
     pub city: String,
-    pub region: String,
-    pub postcode: String,
+    pub region: Option<String>,
+    pub postcode: Option<String>,
     pub country: String,
     pub coordinates: Coordinates,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Coordinates {
-    pub lat: f32,
-    pub lon: f32,
+    pub lat: Option<f32>,
+    pub lon: Option<f32>,
 }
