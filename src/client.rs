@@ -52,8 +52,6 @@ impl RobotEvents {
         Ok(self
             .req_client
             .get(format!("{V2_API_BASE}{}", endpoint.as_ref()))
-            .header("accept-language", "en")
-            .header(USER_AGENT, "RoboStats Discord Bot")
             .bearer_auth(&self.bearer_token)
             .timeout(Duration::from_secs(10))
             .send()
@@ -68,8 +66,6 @@ impl RobotEvents {
         Ok(self
             .req_client
             .get(format!("{V1_API_BASE}{}", endpoint.as_ref()))
-            .header("accept-language", "en")
-            .header(USER_AGENT, "RoboStats Discord Bot")
             .timeout(Duration::from_secs(10))
             .send()
             .await?)
