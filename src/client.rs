@@ -8,7 +8,6 @@ use super::{
     query::{EventsQuery, SeasonsQuery, TeamsQuery},
     schema::*,
 };
-use reqwest::header::USER_AGENT;
 use std::time::Duration;
 
 #[derive(Default, Debug, Clone)]
