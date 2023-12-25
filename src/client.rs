@@ -1,11 +1,11 @@
-use crate::filters::{
-    DivisionMatchesFilter, DivisionRankingsFilter, EventAwardsFilter, EventSkillsFilter,
-    EventTeamsFilter, SeasonEventsFilter, TeamAwardsFilter, TeamEventsFilter, TeamMatchesFilter,
-    TeamRankingsFilter, TeamSkillsFilter,
+use crate::query::{
+    DivisionMatchesQuery, DivisionRankingsQuery, EventAwardsQuery, EventSkillsQuery,
+    EventTeamsQuery, SeasonEventsQuery, TeamAwardsQuery, TeamEventsQuery, TeamMatchesQuery,
+    TeamRankingsQuery, TeamSkillsQuery,
 };
 
 use super::{
-    filters::{EventsFilter, SeasonsFilter, TeamsFilter},
+    query::{EventsQuery, SeasonsQuery, TeamsQuery},
     schema::*,
 };
 use reqwest::header::USER_AGENT;
@@ -81,13 +81,13 @@ impl RobotEvents {
 
     /// Get a paginated list of [`Team`]s from RobotEvents.
     ///
-    /// Team listings can be filtered using a [`TeamsFilter`] search.
+    /// Team listings can be queryed using a [`TeamsQuery`] search.
     pub async fn teams(
         &self,
-        filter: TeamsFilter,
+        query: TeamsQuery,
     ) -> Result<PaginatedResponse<Team>, reqwest::Error> {
         Ok(self
-            .request(format!("/teams{filter}"))
+            .request(format!("/teams{query}"))
             .await?
             .json()
             .await?)
@@ -106,10 +106,10 @@ impl RobotEvents {
     pub async fn team_events(
         &self,
         team_id: i32,
-        filter: TeamEventsFilter,
+        query: TeamEventsQuery,
     ) -> Result<PaginatedResponse<Event>, reqwest::Error> {
         Ok(self
-            .request(format!("/teams/{team_id}/events{filter}"))
+            .request(format!("/teams/{team_id}/events{query}"))
             .await?
             .json()
             .await?)
@@ -119,10 +119,10 @@ impl RobotEvents {
     pub async fn team_matches(
         &self,
         team_id: i32,
-        filter: TeamMatchesFilter,
+        query: TeamMatchesQuery,
     ) -> Result<PaginatedResponse<Match>, reqwest::Error> {
         Ok(self
-            .request(format!("/teams/{team_id}/matches{filter}"))
+            .request(format!("/teams/{team_id}/matches{query}"))
             .await?
             .json()
             .await?)
@@ -132,10 +132,10 @@ impl RobotEvents {
     pub async fn team_rankings(
         &self,
         team_id: i32,
-        filter: TeamRankingsFilter,
+        query: TeamRankingsQuery,
     ) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
         Ok(self
-            .request(format!("/teams/{team_id}/rankings{filter}"))
+            .request(format!("/teams/{team_id}/rankings{query}"))
             .await?
             .json()
             .await?)
@@ -145,10 +145,10 @@ impl RobotEvents {
     pub async fn team_skills(
         &self,
         team_id: i32,
-        filter: TeamSkillsFilter,
+        query: TeamSkillsQuery,
     ) -> Result<PaginatedResponse<Skill>, reqwest::Error> {
         Ok(self
-            .request(format!("/teams/{team_id}/skills{filter}"))
+            .request(format!("/teams/{team_id}/skills{query}"))
             .await?
             .json()
             .await?)
@@ -158,10 +158,10 @@ impl RobotEvents {
     pub async fn team_awards(
         &self,
         team_id: i32,
-        filter: TeamAwardsFilter,
+        query: TeamAwardsQuery,
     ) -> Result<PaginatedResponse<Award>, reqwest::Error> {
         Ok(self
-            .request(format!("/teams/{team_id}/awards{filter}"))
+            .request(format!("/teams/{team_id}/awards{query}"))
             .await?
             .json()
             .await?)
@@ -174,13 +174,13 @@ impl RobotEvents {
 
     /// Get a paginated list of [`Season`]s from RobotEvents.
     ///
-    /// Season listings can be filtered using a [`SeasonFilter`] search.
+    /// Season listings can be queryed using a [`SeasonQuery`] search.
     pub async fn seasons(
         &self,
-        filter: SeasonsFilter,
+        query: SeasonsQuery,
     ) -> Result<PaginatedResponse<Season>, reqwest::Error> {
         Ok(self
-            .request(format!("/seasons{filter}"))
+            .request(format!("/seasons{query}"))
             .await?
             .json()
             .await?)
@@ -199,10 +199,10 @@ impl RobotEvents {
     pub async fn season_events(
         &self,
         season_id: i32,
-        filter: SeasonEventsFilter,
+        query: SeasonEventsQuery,
     ) -> Result<PaginatedResponse<Season>, reqwest::Error> {
         Ok(self
-            .request(format!("/seasons/{season_id}/events{filter}"))
+            .request(format!("/seasons/{season_id}/events{query}"))
             .await?
             .json()
             .await?)
@@ -233,13 +233,13 @@ impl RobotEvents {
 
     /// Get a paginated list of [`Event`]s from RobotEvents.
     ///
-    /// Event listings can be filtered using an [`EventFilter`] search.
+    /// Event listings can be queryed using an [`EventQuery`] search.
     pub async fn events(
         &self,
-        filter: EventsFilter,
+        query: EventsQuery,
     ) -> Result<PaginatedResponse<Event>, reqwest::Error> {
         Ok(self
-            .request(format!("/events{filter}"))
+            .request(format!("/events{query}"))
             .await?
             .json()
             .await?)
@@ -258,10 +258,10 @@ impl RobotEvents {
     pub async fn event_teams(
         &self,
         event_id: i32,
-        filter: EventTeamsFilter,
+        query: EventTeamsQuery,
     ) -> Result<PaginatedResponse<Team>, reqwest::Error> {
         Ok(self
-            .request(format!("/events/{event_id}/teams{filter}"))
+            .request(format!("/events/{event_id}/teams{query}"))
             .await?
             .json()
             .await?)
@@ -271,10 +271,10 @@ impl RobotEvents {
     pub async fn event_skills(
         &self,
         event_id: i32,
-        filter: EventSkillsFilter,
+        query: EventSkillsQuery,
     ) -> Result<PaginatedResponse<Skill>, reqwest::Error> {
         Ok(self
-            .request(format!("/events/{event_id}/skills{filter}"))
+            .request(format!("/events/{event_id}/skills{query}"))
             .await?
             .json()
             .await?)
@@ -284,10 +284,10 @@ impl RobotEvents {
     pub async fn event_awards(
         &self,
         event_id: i32,
-        filter: EventAwardsFilter,
+        query: EventAwardsQuery,
     ) -> Result<PaginatedResponse<Award>, reqwest::Error> {
         Ok(self
-            .request(format!("/events/{event_id}/awards{filter}"))
+            .request(format!("/events/{event_id}/awards{query}"))
             .await?
             .json()
             .await?)
@@ -298,11 +298,11 @@ impl RobotEvents {
         &self,
         event_id: i32,
         division_id: i32,
-        filter: DivisionMatchesFilter,
+        query: DivisionMatchesQuery,
     ) -> Result<PaginatedResponse<Match>, reqwest::Error> {
         Ok(self
             .request(format!(
-                "/events/{event_id}/divisions/{division_id}/matches{filter}"
+                "/events/{event_id}/divisions/{division_id}/matches{query}"
             ))
             .await?
             .json()
@@ -314,11 +314,11 @@ impl RobotEvents {
         &self,
         event_id: i32,
         division_id: i32,
-        filter: DivisionRankingsFilter,
+        query: DivisionRankingsQuery,
     ) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
         Ok(self
             .request(format!(
-                "/events/{event_id}/divisions/{division_id}/finalistRankings{filter}"
+                "/events/{event_id}/divisions/{division_id}/finalistRankings{query}"
             ))
             .await?
             .json()
@@ -330,11 +330,11 @@ impl RobotEvents {
         &self,
         event_id: i32,
         division_id: i32,
-        filter: DivisionRankingsFilter,
+        query: DivisionRankingsQuery,
     ) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
         Ok(self
             .request(format!(
-                "/events/{event_id}/divisions/{division_id}/finalist{filter}"
+                "/events/{event_id}/divisions/{division_id}/finalist{query}"
             ))
             .await?
             .json()

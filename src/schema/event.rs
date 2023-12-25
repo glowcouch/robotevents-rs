@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     RobotEvents,
-    filters::{EventTeamsFilter, EventSkillsFilter, EventAwardsFilter, DivisionMatchesFilter, DivisionRankingsFilter},
+    query::{EventTeamsQuery, EventSkillsQuery, EventAwardsQuery, DivisionMatchesQuery, DivisionRankingsQuery},
     schema::{IdInfo, Location}
 };
 
@@ -82,46 +82,46 @@ impl Event {
     pub async fn teams(
         &self,
         client: &RobotEvents,
-        filter: EventTeamsFilter,
+        query: EventTeamsQuery,
     ) -> Result<PaginatedResponse<Team>, reqwest::Error> {
-        client.event_teams(self.id, filter).await
+        client.event_teams(self.id, query).await
     }
     pub async fn skills(
         &self,
         client: &RobotEvents,
-        filter: EventSkillsFilter,
+        query: EventSkillsQuery,
     ) -> Result<PaginatedResponse<Skill>, reqwest::Error> {
-        client.event_skills(self.id, filter).await
+        client.event_skills(self.id, query).await
     }
     pub async fn awards(
         &self,
         client: &RobotEvents,
-        filter: EventAwardsFilter,
+        query: EventAwardsQuery,
     ) -> Result<PaginatedResponse<Award>, reqwest::Error> {
-        client.event_awards(self.id, filter).await
+        client.event_awards(self.id, query).await
     }
     pub async fn division_matches(
         &self,
         division_id: i32,
         client: &RobotEvents,
-        filter: DivisionMatchesFilter,
+        query: DivisionMatchesQuery,
     ) -> Result<PaginatedResponse<Match>, reqwest::Error> {
-        client.event_division_matches(self.id, division_id, filter).await
+        client.event_division_matches(self.id, division_id, query).await
     }
     pub async fn division_finalist_rankings(
         &self,
         division_id: i32,
         client: &RobotEvents,
-        filter: DivisionRankingsFilter,
+        query: DivisionRankingsQuery,
     ) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
-        client.event_division_finalist_rankings(self.id, division_id, filter).await
+        client.event_division_finalist_rankings(self.id, division_id, query).await
     }
     pub async fn division_rankings(
         &self,
         division_id: i32,
         client: &RobotEvents,
-        filter: DivisionRankingsFilter,
+        query: DivisionRankingsQuery,
     ) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
-        client.event_division_rankings(self.id, division_id, filter).await
+        client.event_division_rankings(self.id, division_id, query).await
     }
 }

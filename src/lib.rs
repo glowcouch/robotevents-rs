@@ -1,5 +1,5 @@
 pub mod client;
-pub mod filters;
+pub mod query;
 pub mod schema;
 
 pub use client::*;

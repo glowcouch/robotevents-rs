@@ -1,7 +1,7 @@
 use crate::{
     client::RobotEvents,
-    filters::{
-        TeamAwardsFilter, TeamEventsFilter, TeamMatchesFilter, TeamRankingsFilter, TeamSkillsFilter,
+    query::{
+        TeamAwardsQuery, TeamEventsQuery, TeamMatchesQuery, TeamRankingsQuery, TeamSkillsQuery,
     },
     schema::{Award, Event, IdInfo, Location, Match, PaginatedResponse, Ranking, Skill},
 };
@@ -49,36 +49,36 @@ impl Team {
     pub async fn events(
         &self,
         client: &RobotEvents,
-        filter: TeamEventsFilter,
+        query: TeamEventsQuery,
     ) -> Result<PaginatedResponse<Event>, reqwest::Error> {
-        client.team_events(self.id, filter).await
+        client.team_events(self.id, query).await
     }
     pub async fn matches(
         &self,
         client: &RobotEvents,
-        filter: TeamMatchesFilter,
+        query: TeamMatchesQuery,
     ) -> Result<PaginatedResponse<Match>, reqwest::Error> {
-        client.team_matches(self.id, filter).await
+        client.team_matches(self.id, query).await
     }
     pub async fn rankings(
         &self,
         client: &RobotEvents,
-        filter: TeamRankingsFilter,
+        query: TeamRankingsQuery,
     ) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
-        client.team_rankings(self.id, filter).await
+        client.team_rankings(self.id, query).await
     }
     pub async fn skills(
         &self,
         client: &RobotEvents,
-        filter: TeamSkillsFilter,
+        query: TeamSkillsQuery,
     ) -> Result<PaginatedResponse<Skill>, reqwest::Error> {
-        client.team_skills(self.id, filter).await
+        client.team_skills(self.id, query).await
     }
     pub async fn awards(
         &self,
         client: &RobotEvents,
-        filter: TeamAwardsFilter,
+        query: TeamAwardsQuery,
     ) -> Result<PaginatedResponse<Award>, reqwest::Error> {
-        client.team_awards(self.id, filter).await
+        client.team_awards(self.id, query).await
     }
 }

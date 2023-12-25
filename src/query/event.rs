@@ -1,18 +1,19 @@
-use super::impl_filter_display;
+use super::{impl_query_display, impl_paginated_query};
 use itertools::join;
 use std::collections::HashMap;
 
 use crate::schema::{EventLevel, EventType, Grade, MatchRound, SkillType};
 
-/// Filters for the RobotEvents `/events` endpoint.
+/// Queries for the RobotEvents `/events` endpoint.
 #[derive(Default, Debug, Clone, PartialEq)]
-pub struct EventsFilter {
+pub struct EventsQuery {
     query: HashMap<&'static str, String>,
 }
 
-impl_filter_display!(EventsFilter);
+impl_paginated_query!(EventsQuery);
+impl_query_display!(EventsQuery);
 
-impl EventsFilter {
+impl EventsQuery {
     pub fn new() -> Self {
         Self::default()
     }
@@ -92,15 +93,16 @@ impl EventsFilter {
     }
 }
 
-/// Filters for the RobotEvents `/event/:id/teams` endpoint.
+/// Queries for the RobotEvents `/event/:id/teams` endpoint.
 #[derive(Default, Debug, Clone, PartialEq)]
-pub struct EventTeamsFilter {
+pub struct EventTeamsQuery {
     query: HashMap<&'static str, String>,
 }
 
-impl_filter_display!(EventTeamsFilter);
+impl_paginated_query!(EventTeamsQuery);
+impl_query_display!(EventTeamsQuery);
 
-impl EventTeamsFilter {
+impl EventTeamsQuery {
     pub fn new() -> Self {
         Self::default()
     }
@@ -143,15 +145,16 @@ impl EventTeamsFilter {
     }
 }
 
-/// Filters for the RobotEvents `/events/:id/skills` endpoint.
+/// Queries for the RobotEvents `/events/:id/skills` endpoint.
 #[derive(Default, Debug, Clone, PartialEq)]
-pub struct EventSkillsFilter {
+pub struct EventSkillsQuery {
     query: HashMap<&'static str, String>,
 }
 
-impl_filter_display!(EventSkillsFilter);
+impl_paginated_query!(EventSkillsQuery);
+impl_query_display!(EventSkillsQuery);
 
-impl EventSkillsFilter {
+impl EventSkillsQuery {
     pub fn new() -> Self {
         Self::default()
     }
@@ -175,15 +178,16 @@ impl EventSkillsFilter {
     }
 }
 
-/// Filters for the RobotEvents `/event/:id/awards` endpoint.
+/// Queries for the RobotEvents `/event/:id/awards` endpoint.
 #[derive(Default, Debug, Clone, PartialEq)]
-pub struct EventAwardsFilter {
+pub struct EventAwardsQuery {
     query: HashMap<&'static str, String>,
 }
 
-impl_filter_display!(EventAwardsFilter);
+impl_paginated_query!(EventAwardsQuery);
+impl_query_display!(EventAwardsQuery);
 
-impl EventAwardsFilter {
+impl EventAwardsQuery {
     pub fn new() -> Self {
         Self::default()
     }
@@ -207,15 +211,16 @@ impl EventAwardsFilter {
     }
 }
 
-/// Filters for the RobotEvents `/event/:id/divisions/:div/matches` endpoint.
+/// Queries for the RobotEvents `/event/:id/divisions/:div/matches` endpoint.
 #[derive(Default, Debug, Clone, PartialEq)]
-pub struct DivisionMatchesFilter {
+pub struct DivisionMatchesQuery {
     query: HashMap<&'static str, String>,
 }
 
-impl_filter_display!(DivisionMatchesFilter);
+impl_paginated_query!(DivisionMatchesQuery);
+impl_query_display!(DivisionMatchesQuery);
 
-impl DivisionMatchesFilter {
+impl DivisionMatchesQuery {
     pub fn new() -> Self {
         Self::default()
     }
@@ -261,15 +266,16 @@ impl DivisionMatchesFilter {
 }
 
 
-/// Filters for the RobotEvents `/event/:id/divisions/:div/finalistRankings` and `/event/:id/divisions/:div/rankings` endpoints.
+/// Queries for the RobotEvents `/event/:id/divisions/:div/finalistRankings` and `/event/:id/divisions/:div/rankings` endpoints.
 #[derive(Default, Debug, Clone, PartialEq)]
-pub struct DivisionRankingsFilter {
+pub struct DivisionRankingsQuery {
     query: HashMap<&'static str, String>,
 }
 
-impl_filter_display!(DivisionRankingsFilter);
+impl_paginated_query!(DivisionRankingsQuery);
+impl_query_display!(DivisionRankingsQuery);
 
-impl DivisionRankingsFilter {
+impl DivisionRankingsQuery {
     pub fn new() -> Self {
         Self::default()
     }

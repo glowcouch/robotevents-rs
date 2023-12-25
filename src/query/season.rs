@@ -1,16 +1,19 @@
-use crate::{filters::impl_filter_display, schema::EventLevel};
+use super::{impl_query_display, impl_paginated_query};
+use crate::schema::EventLevel;
+
 use itertools::join;
 use std::collections::HashMap;
 
-/// Filters for the RobotEvents `/seasons` endpoint.
+/// Queries for the RobotEvents `/seasons` endpoint.
 #[derive(Default, Debug, Clone, PartialEq)]
-pub struct SeasonsFilter {
+pub struct SeasonsQuery {
     query: HashMap<&'static str, String>,
 }
 
-impl_filter_display!(SeasonsFilter);
+impl_paginated_query!(SeasonsQuery);
+impl_query_display!(SeasonsQuery);
 
-impl SeasonsFilter {
+impl SeasonsQuery {
     pub fn new() -> Self {
         Self::default()
     }
@@ -57,15 +60,16 @@ impl SeasonsFilter {
     }
 }
 
-/// Filters for the RobotEvents `/seasons/:id/events` endpoint.
+/// Queries for the RobotEvents `/seasons/:id/events` endpoint.
 #[derive(Default, Debug, Clone, PartialEq)]
-pub struct SeasonEventsFilter {
+pub struct SeasonEventsQuery {
     query: HashMap<&'static str, String>,
 }
 
-impl_filter_display!(SeasonEventsFilter);
+impl_paginated_query!(SeasonEventsQuery);
+impl_query_display!(SeasonEventsQuery);
 
-impl SeasonEventsFilter {
+impl SeasonEventsQuery {
     pub fn new() -> Self {
         Self::default()
     }
