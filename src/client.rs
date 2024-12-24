@@ -1,14 +1,23 @@
+use futures::future::join_all;
+use reqwest::{header::RETRY_AFTER, StatusCode};
+
 use crate::query::{
     DivisionMatchesQuery, DivisionRankingsQuery, EventAwardsQuery, EventSkillsQuery,
-    EventTeamsQuery, SeasonEventsQuery, TeamAwardsQuery, TeamEventsQuery, TeamMatchesQuery,
-    TeamRankingsQuery, TeamSkillsQuery,
+    EventTeamsQuery, PaginatedQuery, SeasonEventsQuery, TeamAwardsQuery, TeamEventsQuery,
+    TeamMatchesQuery, TeamRankingsQuery, TeamSkillsQuery,
 };
 
 use super::{
     query::{EventsQuery, SeasonsQuery, TeamsQuery},
     schema::*,
 };
-use std::time::Duration;
+use std::{
+    borrow::Borrow,
+    collections::VecDeque,
+    future::Future,
+    sync::{Arc, Mutex},
+    time::Duration,
+};
 
 #[derive(Default, Debug, Clone)]
 pub struct RobotEvents {
@@ -24,14 +33,14 @@ impl RobotEvents {
     ///
     /// A bearer authentication token is required for requests to be made. This can
     /// be obtained from RobotEvents by creating an account and requesting one.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// Creating a client with a token stored as an enviornment variable:
-    /// 
+    ///
     /// ```
     /// use robotevents::RobotEvents;
-    /// 
+    ///
     /// let token = std::env::var("ROBOTEVENTS_TOKEN")?;
     /// let client = RobotEvents::new(token);
     /// ```
@@ -52,7 +61,7 @@ impl RobotEvents {
             .req_client
             .get(format!("{V2_API_BASE}{}", endpoint.as_ref()))
             .bearer_auth(&self.bearer_token)
-            .timeout(Duration::from_secs(10))
+            //.timeout(Duration::from_secs(10))// Temporary
             .send()
             .await?)
     }
@@ -81,11 +90,105 @@ impl RobotEvents {
         &self,
         query: TeamsQuery,
     ) -> Result<PaginatedResponse<Team>, reqwest::Error> {
-        Ok(self
-            .request(format!("/teams{query}"))
+        Ok(self.request(format!("/teams{query}")).await?.json().await?)
+    }
+
+    /// Get a non-paginated list of [`Team`]s from RobotEvents.
+    ///
+    /// Team listings can be queryed using a [`TeamsQuery`] search.
+    ///
+    /// # Panics
+    ///
+    /// Panics when the retry count goes over 5 when fetching a page
+    #[allow(clippy::await_holding_lock)]
+    pub async fn all_teams(&self, query: TeamsQuery) -> Result<Vec<Team>, reqwest::Error> {
+        // Get the first page
+        println!("grabbing the first page");
+        let first_response = self.request(format!("/teams{query}")).await?;
+        for header in first_response.headers() {
+            println!(
+                "header: {}:{}",
+                header.0,
+                header.1.to_str().unwrap_or("none")
+            );
+        }
+        let total_ratelimit: i32 = first_response
+            .headers()
+            .get("x-ratelimit-limit")
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .parse()
+            .unwrap();
+        let current_ratelimit: Arc<Mutex<i32>> = Arc::new(Mutex::new(
+            first_response
+                .headers()
+                .get("x-ratelimit-remaining")
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .parse()
+                .unwrap(),
+        ));
+        let first_body: PaginatedResponse<Team> = first_response
+            .json::<PaginatedResponse<Team>>()
             .await?
-            .json()
-            .await?)
+            .clone();
+        let mut out = first_body.data;
+
+        // Create an iterator for the pages that we need to get
+        let pages = 2..=first_body.meta.last_page;
+
+        let futures = pages.map(|i| {
+            let query_clone = query.clone().page(i);
+            async move {
+                // Retry a max of 5 times
+                for _ in 1..=5 {
+                    let response = match self.request(format!("/teams{}", &query_clone)).await {
+                        Ok(v) => v,
+                        Err(e) => return Err(e),
+                    };
+                    let retry_after = response.headers().get(RETRY_AFTER).map(|v| v.to_owned());
+                    let error = response.error_for_status();
+                    match error {
+                        Ok(r) => {
+                            let Ok(paginated) = r.json::<PaginatedResponse<Team>>().await else {
+                                continue;
+                            };
+                            return Ok(paginated);
+                        }
+                        Err(e) => match e.status().unwrap() {
+                            StatusCode::TOO_MANY_REQUESTS => {
+                                match retry_after {
+                                    Some(retry_header) => {
+                                        let Ok(retry_str) = retry_header.to_str() else {
+                                            continue;
+                                        };
+                                        let Ok(retry) = retry_str.parse::<u64>() else {
+                                            continue;
+                                        };
+                                        // Wait the amount of time specified in the retry-after
+                                        // header
+                                        futures_timer::Delay::new(Duration::from_secs(retry)).await;
+                                    }
+                                    None => continue,
+                                }
+                            }
+                            _ => {
+                                return Err(e);
+                            }
+                        },
+                    }
+                }
+                panic!("retried too many times");
+            }
+        });
+
+        for result in join_all(futures).await {
+            out.append(&mut result?.data);
+        }
+
+        Ok(out)
     }
 
     /// Get a specific RobotEvents [`Team`] by ID.
@@ -162,7 +265,6 @@ impl RobotEvents {
             .await?)
     }
 
-    
     /////////////////////////////////////////////////////////////////////////
     // Season-related endpoint methods
     /////////////////////////////////////////////////////////////////////////
@@ -203,7 +305,6 @@ impl RobotEvents {
             .await?)
     }
 
-    
     /////////////////////////////////////////////////////////////////////////
     // Program-related endpoint methods
     /////////////////////////////////////////////////////////////////////////
@@ -221,7 +322,6 @@ impl RobotEvents {
             .await?)
     }
 
-    
     /////////////////////////////////////////////////////////////////////////
     // Event-related endpoint methods
     /////////////////////////////////////////////////////////////////////////
