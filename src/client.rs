@@ -103,15 +103,7 @@ impl RobotEvents {
     #[allow(clippy::await_holding_lock)]
     pub async fn all_teams(&self, query: TeamsQuery) -> Result<Vec<Team>, reqwest::Error> {
         // Get the first page
-        println!("grabbing the first page");
         let first_response = self.request(format!("/teams{query}")).await?;
-        for header in first_response.headers() {
-            println!(
-                "header: {}:{}",
-                header.0,
-                header.1.to_str().unwrap_or("none")
-            );
-        }
         let total_ratelimit: i32 = first_response
             .headers()
             .get("x-ratelimit-limit")
