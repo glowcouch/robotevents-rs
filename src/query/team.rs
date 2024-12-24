@@ -1,4 +1,4 @@
-use super::{impl_query_display, impl_paginated_query};
+use super::{impl_paginated_query, impl_query_display};
 
 use itertools::join;
 use std::collections::HashMap;
@@ -46,8 +46,8 @@ impl TeamsQuery {
         self
     }
 
-    pub fn registered(mut self, number: String) -> Self {
-        self.query.insert("registered", number.to_string());
+    pub fn registered(mut self, registered: bool) -> Self {
+        self.query.insert("registered", registered.to_string());
         self
     }
 
@@ -69,12 +69,14 @@ impl TeamsQuery {
         self
     }
 
-    pub fn country(mut self, country: i32) -> Self {
+    pub fn country(mut self, country: String) -> Self {
         self.query.insert("country%5B%5D", country.to_string());
         self
     }
-    pub fn countries(mut self, countrys: &[i32]) -> Self {
-        self.query.insert("country%5B%5D", join(countrys, ","));
+    pub fn countries(mut self, countrys: &[String]) -> Self {
+        for c in countrys {
+            self.query.insert("country%5B%5D", c.to_string());
+        }
         self
     }
 
