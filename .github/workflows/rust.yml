@@ -1,10 +1,10 @@
-name: Rust
+name: Build & Test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 env:
   CARGO_TERM_COLOR: always
@@ -15,7 +15,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+    - name: Rust Cache
+      uses: Swatinem/rust-cache@v2.7.5
     - name: Build
       run: cargo build --verbose
     - name: Run tests
