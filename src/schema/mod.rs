@@ -2,23 +2,23 @@ pub mod award;
 pub mod event;
 pub mod location;
 pub mod matches;
+pub mod program;
 pub mod ranking;
 pub mod season;
 pub mod skill;
 pub mod team;
-pub mod program;
 
 pub use award::*;
 pub use event::*;
 pub use location::*;
 pub use matches::*;
+pub use program::*;
 pub use ranking::*;
 pub use season::*;
 pub use skill::*;
 pub use team::*;
-pub use program::*;
 
-use crate::{RobotEvents, V2_API_BASE};
+use crate::{client::error, RobotEvents, V2_API_BASE};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -46,7 +46,7 @@ impl<T: DeserializeOwned> PaginatedResponse<T> {
     pub async fn prev_page(
         &self,
         robotevents: &RobotEvents,
-    ) -> Option<Result<PaginatedResponse<T>, reqwest::Error>> {
+    ) -> Option<Result<PaginatedResponse<T>, error::Error>> {
         if let Some(url) = &self.meta.prev_page_url {
             match robotevents
                 .request(url.trim_start_matches(V2_API_BASE))
@@ -54,7 +54,7 @@ impl<T: DeserializeOwned> PaginatedResponse<T> {
             {
                 Ok(response) => match response.json().await {
                     Ok(json) => Some(Ok(json)),
-                    Err(error) => Some(Err(error)),
+                    Err(error) => Some(Err(error.into())),
                 },
                 Err(error) => Some(Err(error)),
             }
@@ -66,7 +66,7 @@ impl<T: DeserializeOwned> PaginatedResponse<T> {
     pub async fn next_page(
         &self,
         robotevents: &RobotEvents,
-    ) -> Option<Result<PaginatedResponse<T>, reqwest::Error>> {
+    ) -> Option<Result<PaginatedResponse<T>, error::Error>> {
         if let Some(url) = &self.meta.next_page_url {
             match robotevents
                 .request(url.trim_start_matches(V2_API_BASE))
@@ -74,7 +74,7 @@ impl<T: DeserializeOwned> PaginatedResponse<T> {
             {
                 Ok(response) => match response.json().await {
                     Ok(json) => Some(Ok(json)),
-                    Err(error) => Some(Err(error)),
+                    Err(error) => Some(Err(error.into())),
                 },
                 Err(error) => Some(Err(error)),
             }
@@ -86,23 +86,25 @@ impl<T: DeserializeOwned> PaginatedResponse<T> {
     pub async fn first_page(
         &self,
         robotevents: &RobotEvents,
-    ) -> Result<PaginatedResponse<T>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<T>, error::Error> {
         robotevents
             .request(self.meta.first_page_url.trim_start_matches(V2_API_BASE))
             .await?
             .json()
             .await
+            .map_err(|e| e.into())
     }
 
     pub async fn last_page(
         &self,
         robotevents: &RobotEvents,
-    ) -> Result<PaginatedResponse<T>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<T>, error::Error> {
         robotevents
             .request(self.meta.last_page_url.trim_start_matches(V2_API_BASE))
             .await?
             .json()
             .await
+            .map_err(|e| e.into())
     }
 }
 
@@ -112,3 +114,4 @@ pub struct IdInfo {
     pub name: String,
     pub code: Option<String>,
 }
+

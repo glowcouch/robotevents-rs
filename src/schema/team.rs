@@ -1,5 +1,5 @@
 use crate::{
-    client::RobotEvents,
+    client::{error, RobotEvents},
     query::{
         TeamAwardsQuery, TeamEventsQuery, TeamMatchesQuery, TeamRankingsQuery, TeamSkillsQuery,
     },
@@ -50,35 +50,35 @@ impl Team {
         &self,
         client: &RobotEvents,
         query: TeamEventsQuery,
-    ) -> Result<PaginatedResponse<Event>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Event>, error::Error> {
         client.team_events(self.id, query).await
     }
     pub async fn matches(
         &self,
         client: &RobotEvents,
         query: TeamMatchesQuery,
-    ) -> Result<PaginatedResponse<Match>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Match>, error::Error> {
         client.team_matches(self.id, query).await
     }
     pub async fn rankings(
         &self,
         client: &RobotEvents,
         query: TeamRankingsQuery,
-    ) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Ranking>, error::Error> {
         client.team_rankings(self.id, query).await
     }
     pub async fn skills(
         &self,
         client: &RobotEvents,
         query: TeamSkillsQuery,
-    ) -> Result<PaginatedResponse<Skill>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Skill>, error::Error> {
         client.team_skills(self.id, query).await
     }
     pub async fn awards(
         &self,
         client: &RobotEvents,
         query: TeamAwardsQuery,
-    ) -> Result<PaginatedResponse<Award>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Award>, error::Error> {
         client.team_awards(self.id, query).await
     }
 }

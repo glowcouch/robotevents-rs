@@ -1,14 +1,18 @@
 use std::collections::HashMap;
 
 use crate::{
+    client::error,
+    query::{
+        DivisionMatchesQuery, DivisionRankingsQuery, EventAwardsQuery, EventSkillsQuery,
+        EventTeamsQuery,
+    },
+    schema::{IdInfo, Location},
     RobotEvents,
-    query::{EventTeamsQuery, EventSkillsQuery, EventAwardsQuery, DivisionMatchesQuery, DivisionRankingsQuery},
-    schema::{IdInfo, Location}
 };
 
 use serde::{Deserialize, Serialize};
 
-use super::{PaginatedResponse, Team, Skill, Award, Match, Ranking};
+use super::{Award, Match, PaginatedResponse, Ranking, Skill, Team};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Division {
@@ -83,21 +87,21 @@ impl Event {
         &self,
         client: &RobotEvents,
         query: EventTeamsQuery,
-    ) -> Result<PaginatedResponse<Team>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Team>, error::Error> {
         client.event_teams(self.id, query).await
     }
     pub async fn skills(
         &self,
         client: &RobotEvents,
         query: EventSkillsQuery,
-    ) -> Result<PaginatedResponse<Skill>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Skill>, error::Error> {
         client.event_skills(self.id, query).await
     }
     pub async fn awards(
         &self,
         client: &RobotEvents,
         query: EventAwardsQuery,
-    ) -> Result<PaginatedResponse<Award>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Award>, error::Error> {
         client.event_awards(self.id, query).await
     }
     pub async fn division_matches(
@@ -105,23 +109,29 @@ impl Event {
         division_id: i32,
         client: &RobotEvents,
         query: DivisionMatchesQuery,
-    ) -> Result<PaginatedResponse<Match>, reqwest::Error> {
-        client.event_division_matches(self.id, division_id, query).await
+    ) -> Result<PaginatedResponse<Match>, error::Error> {
+        client
+            .event_division_matches(self.id, division_id, query)
+            .await
     }
     pub async fn division_finalist_rankings(
         &self,
         division_id: i32,
         client: &RobotEvents,
         query: DivisionRankingsQuery,
-    ) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
-        client.event_division_finalist_rankings(self.id, division_id, query).await
+    ) -> Result<PaginatedResponse<Ranking>, error::Error> {
+        client
+            .event_division_finalist_rankings(self.id, division_id, query)
+            .await
     }
     pub async fn division_rankings(
         &self,
         division_id: i32,
         client: &RobotEvents,
         query: DivisionRankingsQuery,
-    ) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
-        client.event_division_rankings(self.id, division_id, query).await
+    ) -> Result<PaginatedResponse<Ranking>, error::Error> {
+        client
+            .event_division_rankings(self.id, division_id, query)
+            .await
     }
 }

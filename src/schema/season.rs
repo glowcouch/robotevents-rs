@@ -1,4 +1,5 @@
 use super::{Event, IdInfo, PaginatedResponse, RobotEvents};
+use crate::client::error;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -16,7 +17,7 @@ impl Season {
     pub async fn events(
         &self,
         client: &RobotEvents,
-    ) -> Result<PaginatedResponse<Event>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Event>, error::Error> {
         Ok(client
             .request(format!("/seasons/{}/events", self.id))
             .await?
@@ -24,3 +25,4 @@ impl Season {
             .await?)
     }
 }
+

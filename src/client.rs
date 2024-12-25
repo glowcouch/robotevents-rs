@@ -11,13 +11,28 @@ use super::{
     query::{EventsQuery, SeasonsQuery, TeamsQuery},
     schema::*,
 };
-use std::{
-    borrow::Borrow,
-    collections::VecDeque,
-    future::Future,
-    sync::{Arc, Mutex},
-    time::Duration,
-};
+use std::time::Duration;
+
+pub mod error {
+    use reqwest::header;
+    use std::num::ParseIntError;
+
+    #[allow(clippy::enum_variant_names)]
+    #[derive(thiserror::Error, Debug)]
+    pub enum Error {
+        #[error("Reqwest error: {0}")]
+        ReqwestError(#[from] reqwest::Error),
+
+        #[error("Parse int error: {0}")]
+        ParseIntError(#[from] ParseIntError),
+
+        #[error("Header to str error: {0}")]
+        HeaderToStrError(#[from] header::ToStrError),
+
+        #[error(r#"Got "Too Many Requests", but no "retry-after" header was found"#)]
+        NoRetryAfter,
+    }
+}
 
 #[derive(Default, Debug, Clone)]
 pub struct RobotEvents {
@@ -56,14 +71,65 @@ impl RobotEvents {
     pub async fn request(
         &self,
         endpoint: impl AsRef<str>,
-    ) -> Result<reqwest::Response, reqwest::Error> {
-        Ok(self
-            .req_client
-            .get(format!("{V2_API_BASE}{}", endpoint.as_ref()))
-            .bearer_auth(&self.bearer_token)
-            //.timeout(Duration::from_secs(10))// Temporary
-            .send()
-            .await?)
+    ) -> Result<reqwest::Response, error::Error> {
+        const MAX_RETRY: u8 = 5;
+        for i in 0..MAX_RETRY {
+            let last_retry = i == MAX_RETRY - 1;
+            let response = self
+                .req_client
+                .get(format!("{V2_API_BASE}{}", endpoint.as_ref()))
+                .bearer_auth(&self.bearer_token)
+                .timeout(Duration::from_secs(30))
+                .send()
+                .await?;
+            let retry_after = response.headers().get(RETRY_AFTER).map(|v| v.to_owned());
+            let error = response.error_for_status();
+            match error {
+                Ok(r) => {
+                    return Ok(r);
+                }
+                Err(e) => match e.status().unwrap() {
+                    StatusCode::TOO_MANY_REQUESTS => {
+                        match retry_after {
+                            Some(retry_header) => {
+                                let retry_str = match retry_header.to_str() {
+                                    Ok(v) => v,
+                                    Err(e) => {
+                                        if last_retry {
+                                            return Err(e.into());
+                                        } else {
+                                            continue;
+                                        }
+                                    }
+                                };
+                                let retry = match retry_str.parse::<u64>() {
+                                    Ok(v) => v,
+                                    Err(e) => {
+                                        if last_retry {
+                                            return Err(e.into());
+                                        } else {
+                                            continue;
+                                        }
+                                    }
+                                };
+                                // Wait the amount of time specified in the retry-after
+                                // header
+                                futures_timer::Delay::new(Duration::from_secs(retry)).await;
+                            }
+                            None => {
+                                if last_retry {
+                                    return Err(error::Error::NoRetryAfter);
+                                } else {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                    _ => return Err(e.into()),
+                },
+            }
+        }
+        unreachable!()
     }
 
     /// Make a request to a RobotEvents API v1 endpoint.
@@ -86,10 +152,7 @@ impl RobotEvents {
     /// Get a paginated list of [`Team`]s from RobotEvents.
     ///
     /// Team listings can be queryed using a [`TeamsQuery`] search.
-    pub async fn teams(
-        &self,
-        query: TeamsQuery,
-    ) -> Result<PaginatedResponse<Team>, reqwest::Error> {
+    pub async fn teams(&self, query: TeamsQuery) -> Result<PaginatedResponse<Team>, error::Error> {
         Ok(self.request(format!("/teams{query}")).await?.json().await?)
     }
 
@@ -101,27 +164,9 @@ impl RobotEvents {
     ///
     /// Panics when the retry count goes over 5 when fetching a page
     #[allow(clippy::await_holding_lock)]
-    pub async fn all_teams(&self, query: TeamsQuery) -> Result<Vec<Team>, reqwest::Error> {
+    pub async fn all_teams(&self, query: TeamsQuery) -> Result<Vec<Team>, error::Error> {
         // Get the first page
         let first_response = self.request(format!("/teams{query}")).await?;
-        let total_ratelimit: i32 = first_response
-            .headers()
-            .get("x-ratelimit-limit")
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .parse()
-            .unwrap();
-        let current_ratelimit: Arc<Mutex<i32>> = Arc::new(Mutex::new(
-            first_response
-                .headers()
-                .get("x-ratelimit-remaining")
-                .unwrap()
-                .to_str()
-                .unwrap()
-                .parse()
-                .unwrap(),
-        ));
         let first_body: PaginatedResponse<Team> = first_response
             .json::<PaginatedResponse<Team>>()
             .await?
@@ -134,45 +179,12 @@ impl RobotEvents {
         let futures = pages.map(|i| {
             let query_clone = query.clone().page(i);
             async move {
-                // Retry a max of 5 times
-                for _ in 1..=5 {
-                    let response = match self.request(format!("/teams{}", &query_clone)).await {
-                        Ok(v) => v,
-                        Err(e) => return Err(e),
-                    };
-                    let retry_after = response.headers().get(RETRY_AFTER).map(|v| v.to_owned());
-                    let error = response.error_for_status();
-                    match error {
-                        Ok(r) => {
-                            let Ok(paginated) = r.json::<PaginatedResponse<Team>>().await else {
-                                continue;
-                            };
-                            return Ok(paginated);
-                        }
-                        Err(e) => match e.status().unwrap() {
-                            StatusCode::TOO_MANY_REQUESTS => {
-                                match retry_after {
-                                    Some(retry_header) => {
-                                        let Ok(retry_str) = retry_header.to_str() else {
-                                            continue;
-                                        };
-                                        let Ok(retry) = retry_str.parse::<u64>() else {
-                                            continue;
-                                        };
-                                        // Wait the amount of time specified in the retry-after
-                                        // header
-                                        futures_timer::Delay::new(Duration::from_secs(retry)).await;
-                                    }
-                                    None => continue,
-                                }
-                            }
-                            _ => {
-                                return Err(e);
-                            }
-                        },
-                    }
-                }
-                panic!("retried too many times");
+                let o: Result<PaginatedResponse<Team>, error::Error> = Ok(self
+                    .request(format!("/teams{}", query_clone))
+                    .await?
+                    .json::<PaginatedResponse<Team>>()
+                    .await?);
+                o
             }
         });
 
@@ -184,7 +196,7 @@ impl RobotEvents {
     }
 
     /// Get a specific RobotEvents [`Team`] by ID.
-    pub async fn team(&self, team_id: i32) -> Result<Team, reqwest::Error> {
+    pub async fn team(&self, team_id: i32) -> Result<Team, error::Error> {
         Ok(self
             .request(format!("/teams/{team_id}"))
             .await?
@@ -197,7 +209,7 @@ impl RobotEvents {
         &self,
         team_id: i32,
         query: TeamEventsQuery,
-    ) -> Result<PaginatedResponse<Event>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Event>, error::Error> {
         Ok(self
             .request(format!("/teams/{team_id}/events{query}"))
             .await?
@@ -210,7 +222,7 @@ impl RobotEvents {
         &self,
         team_id: i32,
         query: TeamMatchesQuery,
-    ) -> Result<PaginatedResponse<Match>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Match>, error::Error> {
         Ok(self
             .request(format!("/teams/{team_id}/matches{query}"))
             .await?
@@ -223,7 +235,7 @@ impl RobotEvents {
         &self,
         team_id: i32,
         query: TeamRankingsQuery,
-    ) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Ranking>, error::Error> {
         Ok(self
             .request(format!("/teams/{team_id}/rankings{query}"))
             .await?
@@ -236,7 +248,7 @@ impl RobotEvents {
         &self,
         team_id: i32,
         query: TeamSkillsQuery,
-    ) -> Result<PaginatedResponse<Skill>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Skill>, error::Error> {
         Ok(self
             .request(format!("/teams/{team_id}/skills{query}"))
             .await?
@@ -249,7 +261,7 @@ impl RobotEvents {
         &self,
         team_id: i32,
         query: TeamAwardsQuery,
-    ) -> Result<PaginatedResponse<Award>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Award>, error::Error> {
         Ok(self
             .request(format!("/teams/{team_id}/awards{query}"))
             .await?
@@ -267,7 +279,7 @@ impl RobotEvents {
     pub async fn seasons(
         &self,
         query: SeasonsQuery,
-    ) -> Result<PaginatedResponse<Season>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Season>, error::Error> {
         Ok(self
             .request(format!("/seasons{query}"))
             .await?
@@ -276,7 +288,7 @@ impl RobotEvents {
     }
 
     /// Get a specific RobotEvents [`Season`] by ID.
-    pub async fn season(&self, season_id: i32) -> Result<Season, reqwest::Error> {
+    pub async fn season(&self, season_id: i32) -> Result<Season, error::Error> {
         Ok(self
             .request(format!("/seasons/{season_id}"))
             .await?
@@ -289,7 +301,7 @@ impl RobotEvents {
         &self,
         season_id: i32,
         query: SeasonEventsQuery,
-    ) -> Result<PaginatedResponse<Season>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Season>, error::Error> {
         Ok(self
             .request(format!("/seasons/{season_id}/events{query}"))
             .await?
@@ -302,11 +314,11 @@ impl RobotEvents {
     /////////////////////////////////////////////////////////////////////////
 
     /// Get a paginated list of all programs from RobotEvents.
-    pub async fn programs(&self) -> Result<PaginatedResponse<IdInfo>, reqwest::Error> {
+    pub async fn programs(&self) -> Result<PaginatedResponse<IdInfo>, error::Error> {
         Ok(self.request("/programs").await?.json().await?)
     }
     /// Get a specific RobotEvents program by ID.
-    pub async fn program(&self, program_id: i32) -> Result<IdInfo, reqwest::Error> {
+    pub async fn program(&self, program_id: i32) -> Result<IdInfo, error::Error> {
         Ok(self
             .request(format!("/programs/{program_id}"))
             .await?
@@ -324,7 +336,7 @@ impl RobotEvents {
     pub async fn events(
         &self,
         query: EventsQuery,
-    ) -> Result<PaginatedResponse<Event>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Event>, error::Error> {
         Ok(self
             .request(format!("/events{query}"))
             .await?
@@ -333,7 +345,7 @@ impl RobotEvents {
     }
 
     /// Get a specific RobotEvents event by ID.
-    pub async fn event(&self, event_id: i32) -> Result<Event, reqwest::Error> {
+    pub async fn event(&self, event_id: i32) -> Result<Event, error::Error> {
         Ok(self
             .request(format!("/events/{event_id}"))
             .await?
@@ -346,7 +358,7 @@ impl RobotEvents {
         &self,
         event_id: i32,
         query: EventTeamsQuery,
-    ) -> Result<PaginatedResponse<Team>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Team>, error::Error> {
         Ok(self
             .request(format!("/events/{event_id}/teams{query}"))
             .await?
@@ -359,7 +371,7 @@ impl RobotEvents {
         &self,
         event_id: i32,
         query: EventSkillsQuery,
-    ) -> Result<PaginatedResponse<Skill>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Skill>, error::Error> {
         Ok(self
             .request(format!("/events/{event_id}/skills{query}"))
             .await?
@@ -372,7 +384,7 @@ impl RobotEvents {
         &self,
         event_id: i32,
         query: EventAwardsQuery,
-    ) -> Result<PaginatedResponse<Award>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Award>, error::Error> {
         Ok(self
             .request(format!("/events/{event_id}/awards{query}"))
             .await?
@@ -386,7 +398,7 @@ impl RobotEvents {
         event_id: i32,
         division_id: i32,
         query: DivisionMatchesQuery,
-    ) -> Result<PaginatedResponse<Match>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Match>, error::Error> {
         Ok(self
             .request(format!(
                 "/events/{event_id}/divisions/{division_id}/matches{query}"
@@ -402,7 +414,7 @@ impl RobotEvents {
         event_id: i32,
         division_id: i32,
         query: DivisionRankingsQuery,
-    ) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Ranking>, error::Error> {
         Ok(self
             .request(format!(
                 "/events/{event_id}/divisions/{division_id}/finalistRankings{query}"
@@ -418,7 +430,7 @@ impl RobotEvents {
         event_id: i32,
         division_id: i32,
         query: DivisionRankingsQuery,
-    ) -> Result<PaginatedResponse<Ranking>, reqwest::Error> {
+    ) -> Result<PaginatedResponse<Ranking>, error::Error> {
         Ok(self
             .request(format!(
                 "/events/{event_id}/divisions/{division_id}/finalist{query}"
