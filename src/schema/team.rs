@@ -5,6 +5,7 @@ use crate::{
     },
     schema::{Award, Event, IdInfo, Location, Match, PaginatedResponse, Ranking, Skill},
 };
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -29,6 +30,22 @@ impl std::fmt::Display for Grade {
             Self::MiddleSchool => "Middle School",
             Self::ElementarySchool => "Elementary School",
         })
+    }
+}
+
+#[cfg(feature = "fake")]
+pub struct FakeGrade;
+
+#[cfg(feature = "fake")]
+impl fake::Dummy<FakeGrade> for Grade {
+    fn dummy_with_rng<R: rand::Rng + ?Sized>(_: &FakeGrade, rng: &mut R) -> Self {
+        match rng.gen_range(0..4) {
+            0 => Self::College,
+            1 => Self::HighSchool,
+            2 => Self::MiddleSchool,
+            3 => Self::ElementarySchool,
+            _ => unreachable!(),
+        }
     }
 }
 
@@ -80,5 +97,52 @@ impl Team {
         query: TeamAwardsQuery,
     ) -> Result<PaginatedResponse<Award>, error::Error> {
         client.team_awards(self.id, query).await
+    }
+}
+
+#[cfg(feature = "fake")]
+pub struct FakeTeam;
+
+#[cfg(feature = "fake")]
+impl fake::Dummy<FakeTeam> for Team {
+    fn dummy_with_rng<R: rand::Rng + ?Sized>(_: &FakeTeam, rng: &mut R) -> Self {
+        use crate::schema::FakeLocation;
+        use fake::{
+            faker::company::en::{Buzzword, CompanyName},
+            Fake,
+        };
+
+        Team {
+            id: rng.gen_range(0..99999),
+            number: format!("{}{}", rng.gen_range(0..99999), rng.gen_range('A'..'X')),
+            team_name: Buzzword().fake_with_rng(rng),
+            organization: CompanyName().fake_with_rng(rng),
+            location: FakeLocation.fake_with_rng(rng),
+            robot_name: Buzzword().fake_with_rng(rng),
+            registered: rng.gen_bool(0.5),
+            program: IdInfo {
+                id: rng.gen_range(1..60),
+                name: format!(
+                    "{} {}",
+                    {
+                        let v: String = Buzzword().fake_with_rng(rng);
+                        v
+                    },
+                    {
+                        let v: String = CompanyName().fake_with_rng(rng);
+                        v
+                    }
+                ),
+                code: Some(
+                    (0..rng.gen_range(0..6))
+                        .map(|_| match rng.gen_bool(0.2) {
+                            true => rng.gen_range(0..=9).to_string(),
+                            false => rng.gen_range('A'..='Z').to_string(),
+                        })
+                        .join(""),
+                ),
+            },
+            grade: FakeGrade.fake_with_rng(rng),
+        }
     }
 }
