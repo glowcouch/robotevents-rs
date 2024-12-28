@@ -86,6 +86,77 @@ impl TeamsQuery {
     }
 }
 
+#[cfg(feature = "fake")]
+pub struct FakeTeamsQuery;
+
+#[cfg(feature = "fake")]
+impl fake::Dummy<FakeTeamsQuery> for TeamsQuery {
+    fn dummy_with_rng<R: rand::Rng + ?Sized>(_: &FakeTeamsQuery, rng: &mut R) -> Self {
+        use itertools::Itertools;
+        let mut q = Self::new();
+        if rng.gen_bool(0.5) {
+            q = q.ids(
+                &(0..rng.gen_range(1..10))
+                    .map(|_| rng.gen_range(0..99999))
+                    .collect::<Vec<i32>>(),
+            );
+        }
+        if rng.gen_bool(0.5) {
+            q = q.numbers(
+                (0..rng.gen_range(1..10))
+                    .map(|_| format!("{}{}", rng.gen_range(0..=9), rng.gen_range('A'..='Z')))
+                    .collect::<Vec<String>>(),
+            )
+        }
+        if rng.gen_bool(0.5) {
+            q = q.events(
+                &(0..rng.gen_range(1..10))
+                    .map(|_| rng.gen())
+                    .collect::<Vec<i32>>(),
+            )
+        }
+        if rng.gen_bool(0.5) {
+            q = q.registered(rng.gen_bool(0.5));
+        }
+        if rng.gen_bool(0.5) {
+            q = q.programs(
+                &(0..rng.gen_range(1..10))
+                    .map(|_| rng.gen_range(0..60))
+                    .collect::<Vec<i32>>(),
+            );
+        }
+        if rng.gen_bool(0.5) {
+            q = q.grades(
+                &(0..rng.gen_range(1..10))
+                    .map(|_| match rng.gen_range(0..4) {
+                        0 => Grade::College,
+                        1 => Grade::HighSchool,
+                        2 => Grade::MiddleSchool,
+                        3 => Grade::ElementarySchool,
+                        _ => unreachable!(),
+                    })
+                    .collect::<Vec<Grade>>(),
+            );
+        }
+        if rng.gen_bool(0.5) {
+            q = q.countries(
+                &(0..rng.gen_range(1..10))
+                    .map(|_| {
+                        (0..=1)
+                            .map(|_| rng.gen_range('A'..='Z').to_string())
+                            .join("")
+                    })
+                    .collect::<Vec<String>>(),
+            );
+        }
+        if rng.gen_bool(0.5) {
+            q = q.my_teams(rng.gen_bool(0.5));
+        }
+
+        q
+    }
+}
+
 /// Queries for the RobotEvents `/teams/:id/events` endpoint.
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct TeamEventsQuery {
