@@ -1,6 +1,10 @@
-use super::{Event, IdInfo, PaginatedResponse, RobotEvents};
-use crate::client::error;
+use super::IdInfo;
 use serde::{Deserialize, Serialize};
+
+#[cfg(feature = "client")]
+use super::{Event, PaginatedResponse, RobotEvents};
+#[cfg(feature = "client")]
+use crate::client::error;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Season {
@@ -13,6 +17,7 @@ pub struct Season {
     pub years_end: i32,
 }
 
+#[cfg(feature = "client")]
 impl Season {
     pub async fn events(
         &self,
@@ -25,4 +30,3 @@ impl Season {
             .await?)
     }
 }
-

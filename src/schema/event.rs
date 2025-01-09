@@ -1,18 +1,20 @@
 use std::collections::HashMap;
 
+use crate::schema::{IdInfo, Location};
+
+use serde::{Deserialize, Serialize};
+
+#[cfg(feature = "client")]
+use super::{Award, Match, PaginatedResponse, Ranking, Skill, Team};
+#[cfg(feature = "client")]
 use crate::{
     client::error,
     query::{
         DivisionMatchesQuery, DivisionRankingsQuery, EventAwardsQuery, EventSkillsQuery,
         EventTeamsQuery,
     },
-    schema::{IdInfo, Location},
     RobotEvents,
 };
-
-use serde::{Deserialize, Serialize};
-
-use super::{Award, Match, PaginatedResponse, Ranking, Skill, Team};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Division {
@@ -82,6 +84,7 @@ pub struct Event {
     pub event_type: Option<EventType>,
 }
 
+#[cfg(feature = "client")]
 impl Event {
     pub async fn teams(
         &self,

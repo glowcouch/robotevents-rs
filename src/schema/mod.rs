@@ -18,9 +18,14 @@ pub use season::*;
 pub use skill::*;
 pub use team::*;
 
+#[cfg(feature = "client")]
 use crate::{client::error, RobotEvents, V2_API_BASE};
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+#[cfg(feature = "client")]
+use serde::de::DeserializeOwned;
 
+use serde::{Deserialize, Serialize};
+
+#[cfg(feature = "client")]
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PageMeta {
     pub current_page: i32,
@@ -36,12 +41,14 @@ pub struct PageMeta {
     pub total: i32,
 }
 
+#[cfg(feature = "client")]
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PaginatedResponse<T> {
     pub meta: PageMeta,
     pub data: Vec<T>,
 }
 
+#[cfg(feature = "client")]
 impl<T: DeserializeOwned> PaginatedResponse<T> {
     pub async fn prev_page(
         &self,
@@ -114,4 +121,3 @@ pub struct IdInfo {
     pub name: String,
     pub code: Option<String>,
 }
-

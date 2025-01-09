@@ -1,12 +1,16 @@
+use crate::schema::{IdInfo, Location};
+use serde::{Deserialize, Serialize};
+
+#[cfg(feature = "client")]
 use crate::{
     client::{error, RobotEvents},
     query::{
         TeamAwardsQuery, TeamEventsQuery, TeamMatchesQuery, TeamRankingsQuery, TeamSkillsQuery,
     },
-    schema::{Award, Event, IdInfo, Location, Match, PaginatedResponse, Ranking, Skill},
+    schema::{Award, Event, Match, PaginatedResponse, Ranking, Skill},
 };
+#[cfg(feature = "fake")]
 use itertools::Itertools;
-use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Grade {
@@ -62,6 +66,7 @@ pub struct Team {
     pub grade: Grade,
 }
 
+#[cfg(feature = "client")]
 impl Team {
     pub async fn events(
         &self,

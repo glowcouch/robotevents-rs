@@ -55,5 +55,6 @@ macro_rules! impl_paginated_query {
     };
 }
 
-pub use impl_query_display;
 pub use impl_paginated_query;
+pub use impl_query_display;
+

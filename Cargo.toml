@@ -17,13 +17,16 @@ categories = [
 
 [dependencies]
 serde = { version = "1.0.193", features = ["derive"] }
-reqwest = { version = "0.11.22", features = ["json"] }
-itertools = "0.12.0"
-futures = "0.3.31"
-futures-timer = "3.0.3"
-thiserror = "2.0.9"
+reqwest = { version = "0.11.22", features = ["json"], optional = true }
+itertools = {version = "0.12.0", optional = true }
+futures = {version = "0.3.31", optional = true}
+futures-timer = {version = "3.0.3", optional = true}
+thiserror = {version = "2.0.9", optional = true}
 fake = { version = "3.0.1", features = ["derive"], optional = true }
 rand = { version = "0.8.5", optional = true }
 
 [features]
-fake = ["dep:fake", "dep:rand"]
+fake = ["dep:fake", "dep:rand", "dep:itertools"]
+client = [ "dep:reqwest", "dep:futures", "dep:futures-timer", "dep:thiserror", "dep:itertools" ]
+default = [ "client" ]
+all = ["client", "fake"]
