@@ -51,7 +51,7 @@ pub struct Award {
     pub order: i32,
     pub title: String,
     pub qualifications: Vec<String>,
-    pub designcation: Option<AwardDesignation>,
+    pub designation: Option<AwardDesignation>,
     pub classification: Option<AwardClassification>,
     pub team_winners: Vec<TeamAwardWinner>,
     pub individual_winners: Vec<String>,
