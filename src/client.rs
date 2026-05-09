@@ -8,6 +8,7 @@ use super::{
     query::{EventsQuery, SeasonsQuery, TeamsQuery},
     schema::*,
 };
+#[cfg(not(target_arch = "wasm32"))]
 use std::time::Duration;
 
 #[derive(Default, Debug, Clone)]
@@ -48,13 +49,18 @@ impl RobotEvents {
         &self,
         endpoint: impl AsRef<str>,
     ) -> Result<reqwest::Response, reqwest::Error> {
-        Ok(self
-            .req_client
-            .get(format!("{V2_API_BASE}{}", endpoint.as_ref()))
-            .bearer_auth(&self.bearer_token)
-            .timeout(Duration::from_secs(10))
-            .send()
-            .await?)
+        Ok({
+            #[allow(unused_mut)]
+            let mut f = self
+                .req_client
+                .get(format!("{V2_API_BASE}{}", endpoint.as_ref()))
+                .bearer_auth(&self.bearer_token);
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                f = f.timeout(Duration::from_secs(10));
+            }
+            f.send().await?
+        })
     }
 
     /// Make a request to a RobotEvents API v1 endpoint.
@@ -62,12 +68,17 @@ impl RobotEvents {
         &self,
         endpoint: impl AsRef<str>,
     ) -> Result<reqwest::Response, reqwest::Error> {
-        Ok(self
-            .req_client
-            .get(format!("{V1_API_BASE}{}", endpoint.as_ref()))
-            .timeout(Duration::from_secs(10))
-            .send()
-            .await?)
+        Ok({
+            #[allow(unused_mut)]
+            let mut f = self
+                .req_client
+                .get(format!("{V1_API_BASE}{}", endpoint.as_ref()));
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                f = f.timeout(Duration::from_secs(10));
+            }
+            f.send().await?
+        })
     }
 
     /////////////////////////////////////////////////////////////////////////
